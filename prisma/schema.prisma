@@ -22,6 +22,8 @@ model Product{
   updatedAt  DateTime @updatedAt
   deletedAt  DateTime?
   orderItems OrderItem[]
+
+  @@index([deletedAt])
 }
 
 model Customer{
@@ -35,6 +37,8 @@ model Customer{
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
   orders      Order[]
+
+  @@index([deletedAt])
 }
 
 enum OrderStatus{
@@ -47,26 +51,33 @@ enum OrderStatus{
 }
 
 model Order{
-  id          String @id @default(uuid())
-  total       Decimal @db.Decimal(10, 2)
-  status      OrderStatus @default(PENDING)
+  id          String       @id @default(uuid())
+  total       Decimal      @db.Decimal(10, 2)
+  status      OrderStatus  @default(PENDING)
   customerId  String
-  customer    Customer  @relation(fields: [customerId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  customer    Customer     @relation(fields: [customerId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   deletedAt   DateTime?
   items       OrderItem[]
+
+  @@index([deletedAt])
+  @@index([customerId])
 }
 
 model OrderItem{
-  id            String @id @default(uuid())
+  id            String   @id @default(uuid())
   quantidade    Int
-  precoUnitario Decimal @db.Decimal(10, 2)
+  precoUnitario Decimal  @db.Decimal(10, 2)
   orderId       String
-  order         Order  @relation(fields: [orderId], references: [id])
+  order         Order    @relation(fields: [orderId], references: [id])
   productId     String
-  product       Product @relation(fields:[productId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  product       Product  @relation(fields:[productId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   deletedAt   DateTime?
+
+  @@index([deletedAt])
+  @@index([orderId])
+  @@index([productId])
 }

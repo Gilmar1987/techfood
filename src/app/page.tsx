@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { testUseCase } from "@/server/testUseCase";
-import { testDb } from "@/server/testDb";
+import { testDb } from "@/server/testDb01";
 
 // Execute the test use case when the component is rendered
 testUseCase();
@@ -21,7 +21,7 @@ export default async function Home() {
           priority
         />
         <h1>
-          Produtos
+          Produtos Repositori
         </h1>
         <pre>{JSON.stringify(dbTestResult.data, null, 2)}</pre>
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
