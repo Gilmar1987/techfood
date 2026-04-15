@@ -1,27 +1,9 @@
-/*
-model OrderItem{
-  id            String   @id @default(uuid())
-  quantidade    Int
-  precoUnitario Decimal  @db.Decimal(10, 2)
-  orderId       String
-  order         Order    @relation(fields: [orderId], references: [id])
-  productId     String
-  product       Product  @relation(fields:[productId], references: [id])
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  deletedAt   DateTime?
-
-  @@index([deletedAt])
-  @@index([orderId])
-  @@index([productId])
-}
-  */
 import { OrderItem } from "@/domain/entities/OrderItem";
 import { ProductMapper } from "@/infrastructure/mappers/Product.Mappers";
 import { Prisma } from "@/generated/prisma/client";
 
 type OrderItemWithRelations = Prisma.OrderItemGetPayload<{
-    include: { product: true }
+  include: { product: true }
 }>;
 
 export class OrderItemMapper {
@@ -44,11 +26,8 @@ export class OrderItemMapper {
       id: orderItem.id,
       orderId: orderItem.orderId,
       productId: orderItem.productId,
-      quantidade: orderItem.quantity,
+      quantidade: orderItem.quantidade,
       precoUnitario: orderItem.precoUnitario,
-      createdAt: orderItem.createdAt,
-      updatedAt: orderItem.updatedAt,
-      deletedAt: orderItem.deletedAt
     };
   }
 }

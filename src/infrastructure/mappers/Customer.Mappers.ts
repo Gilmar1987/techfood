@@ -1,6 +1,5 @@
 import { Customer } from "@/domain/entities/Customer";
-import { CustomerRepository } from "@/domain/repositories/CustomerRepository";
-import { Customer as PrismaCustomer} from "@/generated/prisma/client";
+import { Customer as PrismaCustomer } from "@/generated/prisma/client";
 
 
 
@@ -27,9 +26,6 @@ export class CustomerMapper {
             endereco: customer.endereco,
             cep: customer.cep,
             cpf: customer.cpf,
-            createdAt: customer.createdAt,
-            updatedAt: customer.updatedAt,
-            deletedAt: customer.deletedAt
         };
     }
 }

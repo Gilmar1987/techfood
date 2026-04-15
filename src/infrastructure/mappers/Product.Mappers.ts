@@ -1,6 +1,5 @@
-
 import { Product } from "@/domain/entities/Product";
-import { Product as PrismaProduct} from "@/generated/prisma/client";
+import { Product as PrismaProduct } from "@/generated/prisma/client";
 
 export class ProductMapper {
   static toDomain(prismaProduct: PrismaProduct): Product {
@@ -21,12 +20,6 @@ export class ProductMapper {
       nome: product.nome,
       preco: product.preco,
       quantidade: product.quantidade,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt,
-      deletedAt: product.deletedAt
     };
   }
 }
-
-
-

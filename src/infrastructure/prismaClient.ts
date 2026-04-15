@@ -11,7 +11,7 @@ if (!databaseUrl) {
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
-    adapter: new PrismaPg(databaseUrl),
+    adapter: new PrismaPg({ connectionString: databaseUrl }),
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma; 

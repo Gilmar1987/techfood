@@ -12,8 +12,8 @@
     "prebuild": "npm run prisma:generate"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.6.0",
-    "@prisma/client": "^7.7.0",
+    "@prisma/adapter-pg": "^6.0.0",
+    "@prisma/client": "^6.0.0",
     "next": "^16.2.3",
     "prisma": "^6.19.3",
     "react": "19.2.4",

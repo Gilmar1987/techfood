@@ -97,7 +97,7 @@ export class PrismaProductRepository implements ProductRepository {
     async descrementStock(productId: string, quantidade: number): Promise<void> {
         const result = await prisma.product.updateMany({
             where: { id: productId, deletedAt: null },
-            data: { stock: { decrement: quantidade } }
+            data: { quantidade: { decrement: quantidade } }
         })
         if (result.count === 0) {
             throw new Error(`Product with id ${productId} not found or has been deleted.`);

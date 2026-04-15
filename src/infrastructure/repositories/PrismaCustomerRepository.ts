@@ -9,24 +9,10 @@ import { prisma } from "@/infrastructure/prismaClient";
 export class PrismaCustomerRepository implements CustomerRepository {
 
     async findById(id: string): Promise<Customer | null> {
-        //Verificar se o id é válido
-        const existingCustomer = await prisma.customer.findUnique({
-            where: {
-                id,
-                deletedAt: null
-            }
+        const customer = await prisma.customer.findUnique({
+            where: { id, deletedAt: null }
         });
-        if (!existingCustomer) {
-            return null;
-        }
-
-        const prismaCustomer = await prisma.customer.findUnique({
-            where: {
-                id,
-                deletedAt: null
-            }
-        });
-        return prismaCustomer ? CustomerMapper.toDomain(prismaCustomer) : null;
+        return customer ? CustomerMapper.toDomain(customer) : null;
     }
 
     async findAll(): Promise<Customer[]> {
@@ -121,14 +107,12 @@ export class PrismaCustomerRepository implements CustomerRepository {
     }
 
     async softDelete(id: string): Promise<void> {
-        const existingCustomer = await prisma.customer.findUnique({
-            where: { id, deletedAt: null }
-        });
-        if (!existingCustomer) {
+        const existingCustomer = await prisma.customer.findUnique({ where: { id } });
+        if (!existingCustomer || existingCustomer.deletedAt) {
             throw new Error("Customer not found");
         }
         await prisma.customer.update({
-            where: { id, deletedAt: null },
+            where: { id },
             data: { deletedAt: new Date() }
         });
     }

@@ -1,14 +1,8 @@
 import Image from "next/image";
-import { testUseCase } from "@/server/testUseCase";
 import { testDb } from "@/server/testDb01";
 
-// Execute the test use case when the component is rendered
-testUseCase();
-
 export default async function Home() {
-  // Execute the test database function and log the result
   const dbTestResult = await testDb();
-  console.log(dbTestResult);
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">

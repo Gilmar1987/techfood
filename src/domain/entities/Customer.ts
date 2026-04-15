@@ -28,18 +28,9 @@ export class Customer {
     public updatedAt?: Date,
     public deletedAt?: Date | null
   ) {
-    Object.assign(this, {
-      id,
-      nome,
-      email,
-      endereco,
-      cep,
-      cpf,
-      createdAt,
-      updatedAt,
-      deletedAt
-    });
-
+    if (!this.validateEmail()) throw new Error("Invalid email");
+    if (!this.validateCPF()) throw new Error("Invalid CPF");
+    if (!this.validateCEP()) throw new Error("Invalid CEP");
   }
 
   // Métodos relacionados ao cliente podem ser adicionados aqui, como validação de CPF, atualização de endereço, etc.
