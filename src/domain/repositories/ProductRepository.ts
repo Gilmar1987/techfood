@@ -1,5 +1,11 @@
 import { Product } from "../entities/Product";
 
+export interface TransactionClient {
+  product: {
+    updateMany: (args: any) => Promise<{ count: number }>;
+  };
+}
+
 export interface ProductRepository {
   findById(id: string): Promise<Product | null>;
   findAll(): Promise<Product[]>;
@@ -7,5 +13,5 @@ export interface ProductRepository {
   update(product: Product): Promise<void>;
   softDelete(id: string): Promise<void>;
   findByIds(ids: string[]): Promise<Product[]>;
-  descrementStock(productId: string, quantity: number): Promise<void>;
+  descrementStock(productId: string, quantidade: number, tx?: TransactionClient): Promise<void>;
 }

@@ -1,7 +1,8 @@
 import { prisma } from "@/infrastructure/prismaClient";
-import { ProductRepository } from "@/domain/repositories/ProductRepository";
+import { ProductRepository, TransactionClient } from "@/domain/repositories/ProductRepository";
 import { Product } from "@/domain/entities/Product";
 import { ProductMapper } from "@/infrastructure/mappers/Product.Mappers";
+import { Prisma } from "@/generated/prisma/client";
 
 
 export class PrismaProductRepository implements ProductRepository {
@@ -94,8 +95,9 @@ export class PrismaProductRepository implements ProductRepository {
         });
     }
 
-    async descrementStock(productId: string, quantidade: number): Promise<void> {
-        const result = await prisma.product.updateMany({
+    async descrementStock(productId: string, quantidade: number, tx?: Prisma.TransactionClient): Promise<void> {
+        const db = tx ?? prisma;
+        const result = await db.product.updateMany({
             where: { id: productId, deletedAt: null },
             data: { quantidade: { decrement: quantidade } }
         })

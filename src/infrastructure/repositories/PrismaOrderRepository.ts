@@ -5,15 +5,18 @@ import { OrderItemRepository } from "@/domain/repositories/OrderItemRepository";
 import { OrderItem } from "@/domain/entities/OrderItem";
 import { OrderItemMapper } from "@/infrastructure/mappers/OrderItem.Mappers";
 import { OrderMapper } from "@/infrastructure/mappers/Order.Mappers";
+import { TransactionManager } from "../database/TransactionManager";
+import { Prisma } from "@/generated/prisma/client";
 
 export class PrismaOrderRepository implements OrderRepository {
     constructor(
         private prisma: PrismaClient,
         private orderItemRepository: OrderItemRepository
     ) { }
-    async create(order: Order): Promise<void> {
+    async create(order: Order, tx?: Prisma.TransactionClient): Promise<void> {
+        const db = tx || this.prisma;
         order.validate();
-        await this.prisma.order.create({ data: OrderMapper.toPrisma(order) });
+        await db.order.create({ data: OrderMapper.toPrisma(order) });
 
         if (order.getItems().length) {
             for (const item of order.getItems()) {

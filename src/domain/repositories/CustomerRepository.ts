@@ -7,4 +7,5 @@ export interface CustomerRepository {
   create(customer: Customer): Promise<void>;
   update(customer: Customer): Promise<void>;
   softDelete(id: string): Promise<void>;
+  findByCPF(cpf: string):Promise<Customer | null>;
 }

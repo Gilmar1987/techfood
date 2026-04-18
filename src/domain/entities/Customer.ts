@@ -28,6 +28,7 @@ export class Customer {
     public updatedAt?: Date,
     public deletedAt?: Date | null
   ) {
+    if (!this.validateNome()) throw new Error("Invalid nome");
     if (!this.validateEmail()) throw new Error("Invalid email");
     if (!this.validateCPF()) throw new Error("Invalid CPF");
     if (!this.validateCEP()) throw new Error("Invalid CEP");
@@ -59,6 +60,11 @@ export class Customer {
     if (parseInt(cpf.charAt(10)) !== digit2) return false;
     return true;
   }
+   // Verificar cpf unico
+   
+
+
+
   //Validar email
   validateEmail(): boolean {
     // Implementação de validação de email (simplificada)
@@ -70,5 +76,10 @@ export class Customer {
     // Implementação de validação de CEP (simplificada)
     const cepRegex = /^\d{5}-?\d{3}$/;
     return cepRegex.test(this.cep);
+  }
+  //Validar nome
+  validateNome(): boolean {
+    // Implementação de validação de nome (simplificada)
+    return this.nome.trim().length > 0;
   }
 }

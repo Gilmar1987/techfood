@@ -15,6 +15,13 @@ export class PrismaCustomerRepository implements CustomerRepository {
         return customer ? CustomerMapper.toDomain(customer) : null;
     }
 
+    async findByCPF(cpf: string): Promise<Customer | null> {
+        const customer = await prisma.customer.findUnique({
+            where: { cpf, deletedAt: null }
+        });
+        return customer ? CustomerMapper.toDomain(customer) : null;
+        }
+
     async findAll(): Promise<Customer[]> {
         const prismaCustomers = await prisma.customer.findMany({ where: { deletedAt: null } });
         if (!prismaCustomers) {
@@ -24,17 +31,12 @@ export class PrismaCustomerRepository implements CustomerRepository {
     }
 
     async create(customer: Customer): Promise<void> {
-        //verificar se o email do cliente é único
         const existingCustomer = await prisma.customer.findFirst({
-            where: {
-                email: customer.email,
-                deletedAt: null
-            }
+            where: { email: customer.email }
         });
         if (existingCustomer) {
             throw new Error("Customer with this email already exists");
         }
-        //Verificar se o nome do cliente é único
         const existingCustomerByName = await prisma.customer.findFirst({
             where: {
                 nome: customer.nome,
@@ -44,12 +46,8 @@ export class PrismaCustomerRepository implements CustomerRepository {
         if (existingCustomerByName) {
             throw new Error("Customer with this name already exists");
         }
-        //Verificar se o cpf do cliente é único
         const existingCustomerByCPF = await prisma.customer.findFirst({
-            where: {
-                cpf: customer.cpf,
-                deletedAt: null
-            }
+            where: { cpf: customer.cpf }
         });
         if (existingCustomerByCPF) {
             throw new Error("Customer with this CPF already exists");

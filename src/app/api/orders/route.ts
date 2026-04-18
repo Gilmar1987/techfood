@@ -1,19 +1,27 @@
-import { CreateOrderUseCase } from "@/server/usecases/CreateOrderUseCase";
-import { ProductRepository } from "@/domain/repositories/ProductRepository";
-import { OrderRepository } from "@/domain/repositories/OrderRepository";
-import { CustomerRepository } from "@/domain/repositories/CustomerRepository";
-import { CreateOrderUseCasereateOrderUseCase } from "@/server/usecases/CreateOrderUseCase";
+import { createOrderUseCase } from "@/server/container";
+import { NextResponse } from "next/server";
 
-export async function POST (request: Request) {
-  const productRepository = new ProductRepository();
-  const orderRepository = new OrderRepository();
-  const customerRepository = new CustomerRepository();
+export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const createOrderUseCase = new CreateOrderUseCase(productRepository, orderRepository, customerRepository);
-    const order = await createOrderUseCase.execute(body);
-    return new Response(JSON.stringify(order), { status: 201 });
+
+    if (!body.customerId || !Array.isArray(body.items) || body.items.length === 0) {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+
+    const order = await createOrderUseCase.execute({
+      customerId: String(body.customerId),
+      items: body.items.map((item: any) => ({
+        productId: String(item.productId),
+        quantidade: Number(item.quantidade),
+      })),
+    });
+
+    return NextResponse.json(order, { status: 201 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
+
+  
 }
