@@ -48,6 +48,10 @@ export class Order {
     return this.status;
   }
 
+  calcularTotal(): void {
+    this.total = this.items.reduce((sum, item) => sum + item.subtotal, 0);
+  }
+
   validate() {
     if (this.items.length === 0) {
       throw new Error("Pedido deve ter pelo menos um item");

@@ -58,6 +58,12 @@ export default function Home() {
             + Cadastrar Cliente
           </Link>
           <Link
+            href="/orders/new"
+            className="h-11 px-6 rounded-full bg-orange-500 text-white text-sm font-semibold transition-colors hover:bg-orange-600"
+          >
+            + Novo Pedido
+          </Link>
+          <Link
             href="/products"
             className="h-11 px-6 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >

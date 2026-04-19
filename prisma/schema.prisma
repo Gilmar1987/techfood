@@ -15,16 +15,19 @@ datasource db {
 }
 
 model Product{
-  id         String @id @default(uuid())
+  id         String     @id @default(uuid())
   nome       String
-  preco      Decimal @db.Decimal(10, 2)
+  preco      Decimal    @db.Decimal(10, 2)
   quantidade Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  supplierId String
+  supplier   Supplier   @relation(fields: [supplierId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   deletedAt  DateTime?
   orderItems OrderItem[]
 
   @@index([deletedAt])
+  @@index([supplierId])
 }
 
 model Customer{
@@ -57,6 +60,8 @@ model Order{
   status      OrderStatus  @default(PENDING)
   customerId  String
   customer    Customer     @relation(fields: [customerId], references: [id])
+  supplierId  String
+  supplier    Supplier     @relation(fields: [supplierId], references: [id])
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   deletedAt   DateTime?
@@ -64,6 +69,7 @@ model Order{
 
   @@index([deletedAt])
   @@index([customerId])
+  @@index([supplierId])
 }
 
 model OrderItem{
@@ -82,3 +88,21 @@ model OrderItem{
   @@index([orderId])
   @@index([productId])
 }
+
+model Supplier {
+  id          String    @id @default(uuid())
+  razaoSocial String
+  endereco    String
+  telefone    String
+  email       String    @unique
+  latitude    Float
+  longitude   Float
+  products    Product[]
+  orders      Order[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+}
+

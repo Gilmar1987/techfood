@@ -20,7 +20,7 @@ export class PrismaOrderRepository implements OrderRepository {
 
         if (order.getItems().length) {
             for (const item of order.getItems()) {
-                await this.orderItemRepository.create(item);
+                await this.orderItemRepository.create(item, tx);
             }
         }
     }
@@ -48,7 +48,10 @@ export class PrismaOrderRepository implements OrderRepository {
     async findAll(): Promise<Order[]> {
         const prismaOrders = await this.prisma.order.findMany({
             where: { deletedAt: null },
-            include: { items: { where: { deletedAt: null }, include: { product: true } } }
+            include: {
+                items: { where: { deletedAt: null }, include: { product: true } },
+                customer: { select: { nome: true } }
+            }
         });
         return prismaOrders.map(OrderMapper.toDomain);
     }

@@ -11,13 +11,14 @@ type OrderWithItems = {
   updatedAt: Date;
   deletedAt?: Date | null;
   items?: any[];
+  customer?: { nome: string } | null;
 };
 
 export class OrderMapper {
   static toPrisma(order: Order) {
     return {
       id: order.id,
-      total: order.total,
+      total: order.valorTotal,
       status: order.statusOrder,
       customerId: order.customerId,
     };
@@ -31,7 +32,8 @@ export class OrderMapper {
       order.customerId,
       order.createdAt,
       order.updatedAt,
-      order.deletedAt
+      order.deletedAt,
+      order.customer ? { id: order.customerId, nome: order.customer.nome } as any : null
     );
     if (order.items) {
       order.items.forEach(item => domainOrder.addItem(OrderItemMapper.toDomain(item)));

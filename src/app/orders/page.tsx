@@ -15,21 +15,23 @@ export default async function OrdersPage() {
           <p className="text-zinc-500">Nenhum pedido encontrado.</p>
         ) : (
           <div className="flex flex-col gap-4">
-            {orders.map((order: Order) => (
+            {orders.map((order: Order, index: number) => (
               <div
                 key={order.id}
                 className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-zinc-400 font-mono">{order.id}</span>
+                  <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                    Pedido #{orders.length - index}
+                  </span>
                   <span className="text-xs font-medium px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
                     {order.statusOrder}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
-                  <span>Cliente: <span className="font-medium text-black dark:text-white">{order.customerId}</span></span>
-                  <span>Total: <span className="font-semibold text-black dark:text-white">R$ {Number(order.total).toFixed(2)}</span></span>
+                  <span>Cliente: <span className="font-medium text-black dark:text-white">{order.customer?.nome ?? order.customerId}</span></span>
+                  <span>Total: <span className="font-semibold text-black dark:text-white">R$ {order.valorTotal.toFixed(2)}</span></span>
                 </div>
 
                 {order.getItems().length > 0 && (

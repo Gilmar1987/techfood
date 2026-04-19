@@ -54,6 +54,7 @@ export class CreateOrderUseCase {
     }
 
     order.validate();
+    order.calcularTotal();
 
     return this.transactionManager.execute(async (tx) => {
       for (const item of order.getItems()) {
