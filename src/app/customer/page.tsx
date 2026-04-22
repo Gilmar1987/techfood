@@ -12,6 +12,7 @@ export default async function CustomerPage() {
     endereco: c.endereco,
     cep: c.cep,
     cpf: c.cpf,
+    telefone: c.telefone,
   }));
 
   return (

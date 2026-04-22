@@ -12,6 +12,7 @@ export class CustomerMapper {
             prismaCustomer.endereco,
             prismaCustomer.cep,
             prismaCustomer.cpf,
+            prismaCustomer.telefone,
             prismaCustomer.createdAt,
             prismaCustomer.updatedAt,
             prismaCustomer.deletedAt
@@ -26,6 +27,7 @@ export class CustomerMapper {
             endereco: customer.endereco,
             cep: customer.cep,
             cpf: customer.cpf,
+            telefone: customer.telefone,
         };
     }
 }

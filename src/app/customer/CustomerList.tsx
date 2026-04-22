@@ -9,6 +9,7 @@ type CustomerData = {
   endereco: string;
   cep: string;
   cpf: string;
+  telefone: string;
 };
 
 const PAGE_SIZE = 5;
@@ -48,6 +49,7 @@ export default function CustomerList({ customers }: { customers: CustomerData[] 
                     <th className="py-3 px-4 text-left text-xs font-semibold text-zinc-400 uppercase">Endereço</th>
                     <th className="py-3 px-4 text-left text-xs font-semibold text-zinc-400 uppercase">CEP</th>
                     <th className="py-3 px-4 text-left text-xs font-semibold text-zinc-400 uppercase">CPF</th>
+                    <th className="py-3 px-4 text-left text-xs font-semibold text-zinc-400 uppercase">Telefone</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -58,6 +60,7 @@ export default function CustomerList({ customers }: { customers: CustomerData[] 
                       <td className="py-3 px-4 text-sm text-zinc-600 dark:text-zinc-400">{customer.endereco}</td>
                       <td className="py-3 px-4 text-sm text-zinc-600 dark:text-zinc-400">{customer.cep}</td>
                       <td className="py-3 px-4 text-sm text-zinc-600 dark:text-zinc-400">{customer.cpf}</td>
+                      <td className="py-3 px-4 text-sm text-zinc-600 dark:text-zinc-400">{customer.telefone}</td>
                     </tr>
                   ))}
                 </tbody>

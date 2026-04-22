@@ -24,6 +24,7 @@ export class Customer {
     public endereco: string,
     public cep: string,
     public cpf: string,
+    public telefone: string,
     public createdAt?: Date,
     public updatedAt?: Date,
     public deletedAt?: Date | null
@@ -32,6 +33,7 @@ export class Customer {
     if (!this.validateEmail()) throw new Error("Invalid email");
     if (!this.validateCPF()) throw new Error("Invalid CPF");
     if (!this.validateCEP()) throw new Error("Invalid CEP");
+    if (!this.validateTelefone()) throw new Error("Invalid telefone");
   }
 
   // Métodos relacionados ao cliente podem ser adicionados aqui, como validação de CPF, atualização de endereço, etc.
@@ -79,7 +81,11 @@ export class Customer {
   }
   //Validar nome
   validateNome(): boolean {
-    // Implementação de validação de nome (simplificada)
     return this.nome.trim().length > 0;
+  }
+
+  validateTelefone(): boolean {
+    const tel = this.telefone.replace(/[^\d]/g, "");
+    return tel.length >= 10 && tel.length <= 11;
   }
 }

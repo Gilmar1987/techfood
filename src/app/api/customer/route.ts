@@ -36,21 +36,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const nome = typeof body.nome === "string" ? body.nome.trim() : "";
-    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-    const endereco = typeof body.endereco === "string" ? body.endereco.trim() : "";
-    const cep = typeof body.cep === "string" ? body.cep.trim() : "";
+    const nome = typeof body.nome === "string" ? body.nome.trim().replace(/[^a-zA-ZÀ-ÿ\s]/g, "") : "";
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase().replace(/[^a-z0-9@._-]/g, "") : "";
+    const endereco = typeof body.endereco === "string" ? body.endereco.trim().replace(/[^a-zA-ZÀ-ÿ0-9\s,.-]/g, "") : "";
+    const cep = typeof body.cep === "string" ? body.cep.trim().replace(/[^\d-]/g, "") : "";
     const cpf = typeof body.cpf === "string" ? body.cpf.trim().replace(/[^\d]/g, "") : "";
+    const telefone = typeof body.telefone === "string" ? body.telefone.trim() : "";
 
     if (!nome || !email || !endereco || !cep || !cpf) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    const customer = await createCustomerUseCase.execute({ nome, email, endereco, cep, cpf });
+    const customer = await createCustomerUseCase.execute({ nome, email, endereco, cep, cpf, telefone });
 
     return NextResponse.json(customer, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

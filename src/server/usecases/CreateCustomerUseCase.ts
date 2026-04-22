@@ -7,13 +7,14 @@ type CreateCustomerInput = {
   endereco: string;
   cep: string;
   cpf: string;
+  telefone: string;
 };
 
 export class CreateCustomerUseCase {
   constructor(private customerRepository: CustomerRepository) {}
 
-  async execute(input: CreateCustomerInput) {
-    const { nome, email, endereco, cep, cpf } = input;
+  async execute(input: CreateCustomerInput): Promise<Customer> {
+    const { nome, email, endereco, cep, cpf, telefone } = input;
 
     const customer = new Customer(
       crypto.randomUUID(),
@@ -22,6 +23,8 @@ export class CreateCustomerUseCase {
       endereco,
       cep,
       cpf,
+      telefone,
+      
       new Date(),
       new Date(),
       null
