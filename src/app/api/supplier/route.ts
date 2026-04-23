@@ -21,6 +21,7 @@ export async function GET(request: Request) {
       id: s.id,
       razaoSocial: s.razaoSocial,
       cnpj: s.cnpj,
+      cep: s.cep,
       endereco: s.endereco,
       telefone: s.telefone,
       email: s.email,
@@ -43,17 +44,18 @@ export async function POST(request: Request) {
 
     const razaoSocial = typeof body.razaoSocial === "string" ? body.razaoSocial.trim() : "";
     const cnpj = typeof body.cnpj === "string" ? body.cnpj.replace(/[\D]/g, "") : "";
-    const endereco = typeof body.endereco === "string" ? body.endereco.trim().replace(/[^a-zA-Z\u00C0-\u00ff0-9\s,.-]/g, "") : "";
+    const cep = typeof body.cep === "string" ? body.cep.replace(/[\D]/g, "") : "";
+    const endereco = typeof body.endereco === "string" ? body.endereco.trim().replace(/[^a-zA-Z\u00C0-\u00FF0-9\s,.-]/g, "") : "";
     const telefone = typeof body.telefone === "string" ? body.telefone.replace(/[\D]/g, "") : "";
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase().replace(/[^a-z0-9@._-]/g, "") : "";
-    const latitude = Number(body.latitude);
-    const longitude = Number(body.longitude);
+    const latitude = body.latitude !== undefined && body.latitude !== "" ? Number(body.latitude) : undefined;
+    const longitude = body.longitude !== undefined && body.longitude !== "" ? Number(body.longitude) : undefined;
 
-    if (!razaoSocial || !cnpj || !endereco || !telefone || !email || isNaN(latitude) || isNaN(longitude)) {
+    if (!razaoSocial || !cnpj || !cep || !endereco || !telefone || !email) {
       return NextResponse.json({ error: "All fields are required and must be valid" }, { status: 400 });
     }
 
-    const supplier = await createSupplierUseCase.execute({ razaoSocial, cnpj, endereco, telefone, email, latitude, longitude });
+    const supplier = await createSupplierUseCase.execute({ razaoSocial, cnpj, cep, endereco, telefone, email, latitude, longitude });
     return NextResponse.json(supplier, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Internal server error";

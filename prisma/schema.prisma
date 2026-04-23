@@ -112,6 +112,7 @@ model Supplier {
   id          String    @id @default(uuid())
   razaoSocial String
   cnpj        String    @unique
+  cep         String
   endereco    String
   telefone    String
   email       String    @unique

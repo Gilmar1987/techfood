@@ -13,6 +13,8 @@ import { CreateSupplierUseCase } from '@/server/usecases/CreateSupplierUseCase';
 import { PayOrderUseCase } from '@/server/usecases/PayOrderUseCase';
 import { UpdateOrderStatusUseCase } from '@/server/usecases/UpdateOrderStatusUseCase';
 import { TransactionManager } from '@/infrastructure/database/TransactionManager';
+import { GeolocalizacaoRepository } from '@/infrastructure/repositories/GeolocalizacaoRepository';
+import { CepService } from '@/infrastructure/services/CepService';
 
 function makeContainer() {
   const orderItemRepository = new PrismaOrderItemRepository(prisma);
@@ -21,10 +23,12 @@ function makeContainer() {
   const customerRepository = new PrismaCustomerRepository();
   const supplierRepository = new PrismaSupplierRepository();
   const transactionManager = new TransactionManager();
+  const geoRepo = new GeolocalizacaoRepository();
+  const cepService = new CepService();
   const createOrderUseCase = new CreateOrderUseCase(productRepository, orderRepository,
     customerRepository, transactionManager);
 
-  return { productRepository, orderRepository, customerRepository, supplierRepository, createOrderUseCase };
+  return { productRepository, orderRepository, customerRepository, supplierRepository, createOrderUseCase, geoRepo, cepService };
 }
 
 const container = makeContainer();
@@ -36,6 +40,6 @@ export const createOrderUseCase = container.createOrderUseCase;
 
 export const createProductUseCase = new CreateProductUseCase(productRepository);
 export const createCustomerUseCase = new CreateCustomerUseCase(customerRepository);
-export const createSupplierUseCase = new CreateSupplierUseCase(supplierRepository);
+export const createSupplierUseCase = new CreateSupplierUseCase(supplierRepository, container.geoRepo, container.cepService);
 export const payOrderUseCase = new PayOrderUseCase(orderRepository);
 export const updateOrderStatusUseCase = new UpdateOrderStatusUseCase(orderRepository);
