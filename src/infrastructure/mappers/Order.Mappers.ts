@@ -5,6 +5,7 @@ import { OrderItemMapper } from "@/infrastructure/mappers/OrderItem.Mappers";
 type OrderWithItems = {
   id: string;
   total: any;
+  frete: any;
   status: string;
   customerId: string;
   supplierId: string;
@@ -20,6 +21,7 @@ export class OrderMapper {
     return {
       id: order.id,
       total: order.valorTotal,
+      frete: order.frete,
       status: order.statusOrder,
       customerId: order.customerId,
       supplierId: order.supplierId,
@@ -30,6 +32,7 @@ export class OrderMapper {
     const domainOrder = new Order(
       order.id,
       Number(order.total),
+      Number(order.frete ?? 0),
       order.status as OrderStatus,
       order.customerId,
       order.supplierId,

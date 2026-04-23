@@ -25,6 +25,7 @@ export class Order {
   constructor(
     public id: string,
     public total: number,
+    public frete: number,
     private status: OrderStatus,
     public customerId: string,
     public supplierId: string,

@@ -1,285 +1,273 @@
-# 📦 Order Management System
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍕 TechFood — Order Management System
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)]
 [![React](https://img.shields.io/badge/React-19-blue?logo=react)]
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)]
-[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)]
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)]
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?logo=postgresql)]
-[![Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-green)]
+[![Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture%20%2B%20DDD-green)]
 [![Status](https://img.shields.io/badge/Status-In%20Development-yellow)]
 
 ---
 
-## 🚀 Overview
+## 🚀 Visão Geral
 
-A **fullstack Order Management System** built with **Next.js**, following **Clean Architecture** and **Domain-Driven Design (DDD)** principles.
-
-This project is designed as a **scalable and maintainable foundation** for real-world applications, focusing on:
-
-* Separation of concerns
-* Business rule encapsulation
-* Testability
-* Scalability
+**TechFood** é um sistema fullstack de gestão de pedidos para restaurantes e food services, construído com **Next.js 16**, seguindo os princípios de **Clean Architecture** e **Domain-Driven Design (DDD)**.
 
 ---
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
----
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-* [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-* [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
----
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
----
-
-## 🧠 Architecture
+## 🧠 Arquitetura
 
 ```text
 src/
- ├── app/                  # UI + API Routes (Next.js)
- ├── server/               # Use Cases (Application Layer)
- ├── domain/               # Entities + Business Rules
- ├── infrastructure/       # Prisma + Repositories + Mappers
+ ├── app/                        # UI + API Routes (Next.js App Router)
+ │   ├── api/                    # Endpoints REST
+ │   │   ├── customer/           # GET, POST, PATCH
+ │   │   ├── orders/             # GET, POST
+ │   │   ├── products/           # GET, POST, PUT, DELETE
+ │   │   ├── supplier/           # GET, POST
+ │   │   └── frete/              # GET (cálculo de frete)
+ │   ├── customer/               # Páginas de clientes
+ │   ├── orders/                 # Páginas de pedidos
+ │   ├── products/               # Páginas de produtos
+ │   └── supplier/               # Páginas de fornecedores
+ ├── domain/                     # Entidades + Regras de Negócio
+ │   ├── entities/               # Product, Customer, Order, OrderItem, Supplier
+ │   ├── enums/                  # OrderStatus
+ │   ├── repositories/           # Interfaces dos repositórios
+ │   └── services/               # FreteService (Haversine)
+ ├── infrastructure/             # Prisma + Repositórios + Mappers + Serviços
+ │   ├── database/               # TransactionManager
+ │   ├── mappers/                # Mapeamento domínio ↔ Prisma
+ │   ├── repositories/           # Implementações Prisma
+ │   └── services/               # CepService (API CEP Aberto)
+ └── server/                     # Use Cases + Container DI
+     └── usecases/               # CreateOrder, CreateProduct, CreateCustomer, CreateSupplier
 ```
 
 ---
 
-## 🧱 Layers Explained
+## 🧱 Camadas
 
-### 🔹 Domain (Core)
+### 🔹 Domínio
+- Entidades: `Product`, `Customer`, `Order`, `OrderItem`, `Supplier`
+- Validações no construtor (CPF, email, CEP, telefone, CNPJ, coordenadas)
+- Sem dependências externas
 
-* Entities: `Product`, `Customer`, `Order`, `OrderItem`
-* Business rules and validations
-* No external dependencies
+### 🔹 Aplicação (Use Cases)
+- `CreateOrderUseCase` — com transação atômica via `TransactionManager`
+- `CreateProductUseCase` — vinculado a um `Supplier`
+- `CreateCustomerUseCase` — com validações de unicidade
+- `CreateSupplierUseCase` — com validação de CNPJ
 
----
-
-### 🔹 Application (Use Cases)
-
-* Orchestrates system behavior
-* Example: `CreateOrderUseCase`
-* Uses repositories to access data
-
----
-
-### 🔹 Infrastructure
-
-* Prisma ORM
-* Repository implementations
-* Database mapping
-
----
+### 🔹 Infraestrutura
+- Prisma ORM com adapter `@prisma/adapter-pg`
+- Repositórios: `PrismaProductRepository`, `PrismaCustomerRepository`, `PrismaOrderRepository`, `PrismaOrderItemRepository`, `PrismaSupplierRepository`, `GeolocalizacaoRepository`
+- `CepService` — integração com API CEP Aberto (autenticada por token)
+- `FreteService` — cálculo de distância via fórmula de Haversine
 
 ### 🔹 Interface (Next.js)
-
-* API Routes (`/api/orders`)
-* UI components
+- API Routes com sanitização de inputs e validação UUID
+- Server Components para listagens
+- Client Components para formulários e interações
 
 ---
 
-## 🔄 Order Creation Flow
+## 🔄 Fluxo de Criação de Pedido
 
 ```text
-POST /api/orders
-    ↓
-Route Handler
-    ↓
-CreateOrderUseCase
-    ↓
-Validate Customer
-    ↓
-Fetch Products
-    ↓
-Validate Stock
-    ↓
-Create Order Entity
-    ↓
-Add Items
-    ↓
-Update Stock (atomic)
-    ↓
-Persist Order
+1. Cliente informa CPF
+       ↓
+2. Sistema busca cliente
+   ✔ Existe → carrega dados (nome, email, endereço, CEP)
+   ✘ Não existe → formulário de cadastro
+       ↓
+3. Cliente confirma ou altera endereço/CEP
+       ↓
+4. Sistema calcula frete
+   → Busca coordenadas no cache (tabela Geolocalizacao)
+   → Cache miss → consulta API CEP Aberto → salva no cache
+   → Haversine: distância entre CEP do cliente e coordenadas do fornecedor
+   → Frete por faixa: Local / Regional / Estadual / Nacional
+       ↓
+5. Cliente escolhe fornecedor
+       ↓
+6. Sistema exibe produtos do fornecedor com controle de estoque
+       ↓
+7. Cliente monta carrinho (validação de estoque em tempo real)
+       ↓
+8. Finaliza pedido (transação atômica: decrementa estoque + cria pedido)
 ```
 
 ---
 
-## 🧾 Business Rules
+## 🧾 Regras de Negócio
 
 ### 📦 Product
-
-* Stock control (`quantidade`)
-* Soft delete (`deletedAt`)
-* Prevents negative stock
-
----
+- Vinculado obrigatoriamente a um `Supplier` via `supplierId`
+- Nome único por fornecedor
+- Controle de estoque (`quantidade`)
+- Soft delete (`deletedAt`)
+- Impede estoque negativo via `updateMany` atômico
 
 ### 👤 Customer
+- CPF único (validação com dígitos verificadores)
+- Email único
+- Validação de CEP, telefone e nome no construtor
+- Endereço e CEP atualizáveis via `PATCH`
 
-* Must exist to create an order
-* Contains address and CEP (for future shipping logic)
-
----
+### 🏭 Supplier
+- CNPJ único com validação dos dígitos verificadores
+- Email único
+- Coordenadas geográficas (latitude/longitude) para cálculo de frete
+- Relacionamento 1-N com `Product` e `Order`
 
 ### 🧾 Order
-
-* Must contain at least one item
-* Total is calculated internally
-* Controlled status workflow
-
----
+- Deve conter pelo menos um item
+- `supplierId` obrigatório — pedido exclusivo de um fornecedor
+- Total calculado internamente (`valorTotal`)
+- Frete armazenado no pedido (`frete`)
+- Workflow de status: `PENDING → PREPARING → READY → OUT_FOR_DELIVERY → DELIVERED / CANCELLED`
+- Transação atômica: decremento de estoque + criação do pedido
 
 ### 🧾 OrderItem
-
-* Quantity > 0
-* Price > 0
-* Internal subtotal calculation
+- `quantidade > 0`
+- `precoUnitario > 0`
+- Subtotal calculado internamente
 
 ---
 
-## 🔒 Concurrency Control (Stock)
+## 🚚 Cálculo de Frete
 
-Atomic stock update using:
+| Faixa | Distância | Taxa | Prazo |
+|---|---|---|---|
+| Local | até 10 km | R$ 5,00 fixo | 1 dia |
+| Regional | 10–50 km | R$ 0,50/km | 2 dias |
+| Estadual | 50–200 km | R$ 0,45/km | 3 dias |
+| Nacional | acima de 200 km | R$ 0,40/km | 5 dias |
+
+**Cache de geolocalização:** coordenadas consultadas uma vez e armazenadas na tabela `Geolocalizacao` (CEP como PK). Consultas subsequentes do mesmo CEP não chamam a API externa.
+
+---
+
+## 🔒 Controle de Concorrência (Estoque)
 
 ```ts
-updateMany({
-  where: {
-    id: productId,
-    quantidade: { gte: quantidade }
-  }
+prisma.product.updateMany({
+  where: { id: productId, quantidade: { gte: quantidade } }
 })
 ```
 
-### Benefits
-
-* Prevents race conditions
-* Ensures data consistency
-* Avoids negative stock
+- Previne race conditions
+- Garante consistência dos dados
+- Evita estoque negativo
 
 ---
 
-## 🧩 Design Patterns
+## 🗄️ Modelos do Banco de Dados
 
-* Repository Pattern
-* Mapper Pattern
-* Aggregate Root (Order)
-* Use Case Pattern
-* Dependency Injection
+| Model | Campos principais |
+|---|---|
+| `Product` | id, nome, preco, quantidade, supplierId |
+| `Customer` | id, nome, email, cpf, cep, endereco, telefone |
+| `Order` | id, total, frete, status, customerId, supplierId |
+| `OrderItem` | id, quantidade, precoUnitario, orderId, productId |
+| `Supplier` | id, razaoSocial, cnpj, email, latitude, longitude |
+| `Geolocalizacao` | cep (PK), latitude, longitude |
 
 ---
 
-## 🧪 Testing Strategy
+## 📡 API Routes
 
-* Unit tests for Use Cases
-* Mocked repositories
-* Isolated domain testing
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/customer?cpf=` | Busca cliente por CPF |
+| `POST` | `/api/customer` | Cadastra cliente |
+| `PATCH` | `/api/customer` | Atualiza endereço/CEP |
+| `GET` | `/api/products?supplierId=` | Lista produtos (com filtro por fornecedor) |
+| `POST` | `/api/products` | Cria produto |
+| `PUT` | `/api/products` | Atualiza produto |
+| `DELETE` | `/api/products?id=` | Remove produto (soft delete) |
+| `GET` | `/api/supplier?cnpj=` | Busca fornecedor por CNPJ |
+| `GET` | `/api/supplier` | Lista fornecedores |
+| `POST` | `/api/supplier` | Cadastra fornecedor |
+| `POST` | `/api/orders` | Cria pedido |
+| `GET` | `/api/frete?cep=&supplierId=` | Calcula frete com cache de geolocalização |
+
+---
+
+## 🖥️ Páginas UI
+
+| Rota | Descrição |
+|---|---|
+| `/` | Landing page do TechFood |
+| `/products` | Listagem de produtos com paginação e toggle |
+| `/products/new` | Cadastro de produto (identificação por CNPJ do fornecedor) |
+| `/products/manage` | CRUD completo de produtos por fornecedor |
+| `/customer` | Listagem de clientes |
+| `/customer/new` | Cadastro de cliente |
+| `/orders` | Listagem de pedidos com subtotal, frete e total |
+| `/orders/new` | Criação de pedido (5 steps: cliente → endereço → fornecedor → produtos → finalizar) |
+| `/supplier` | Listagem de fornecedores |
+| `/supplier/new` | Cadastro de fornecedor |
+
+---
+
+## 🧩 Padrões de Design
+
+- Repository Pattern
+- Mapper Pattern
+- Aggregate Root (`Order` controla `OrderItem`)
+- Use Case Pattern
+- Dependency Injection (container centralizado)
+- Factory Function (instanciação lazy do container)
+- Cache Pattern (geolocalização por CEP)
 
 ---
 
 ## 🐳 Tech Stack
 
-* **Frontend/Backend:** Next.js (App Router)
-* **Language:** TypeScript
-* **Database:** PostgreSQL
-* **ORM:** Prisma
-* **Architecture:** Clean Architecture + DDD
+| Tecnologia | Versão | Uso |
+|---|---|---|
+| Next.js | 16 | Frontend + Backend (App Router) |
+| React | 19 | UI |
+| TypeScript | 5 | Linguagem |
+| Prisma | 6 | ORM |
+| PostgreSQL | — | Banco de dados |
+| @prisma/adapter-pg | 6 | Adapter de conexão |
+| API CEP Aberto | v3 | Geolocalização por CEP |
 
 ---
 
-## 📌 Current Features
+## ⚙️ Configuração
 
-* ✅ Product management
-* ✅ Customer management
-* ✅ Stock control
-* ✅ Order creation
-* ✅ Multiple items per order
-* ✅ Soft delete
-* ✅ Clean architecture structure
-
----
-
-## 🚀 Future Improvements
-
-* Shipping calculation by CEP
-* Domain events
-* Unit of Work (transactions)
-* Authentication & Authorization
-* Admin dashboard
-* Integration with external APIs
-
----
-
-## ⚙️ Getting Started
-
-### 1. Clone repository
+### 1. Clonar repositório
 
 ```bash
-git clone https://github.com/your-username/order-management.git
-cd order-management
+git clone https://github.com/your-username/techfood.git
+cd techfood
 ```
 
----
-
-### 2. Install dependencies
+### 2. Instalar dependências
 
 ```bash
 npm install
 ```
 
----
-
-### 3. Setup environment
-
-Create `.env` file:
+### 3. Configurar variáveis de ambiente
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/db"
+DATABASE_URL="postgresql://user:password@localhost:5432/techfood"
+CEP_ABERTO_TOKEN=seu_token_aqui
 ```
 
----
-
-### 4. Run migrations
+### 4. Executar migrations
 
 ```bash
 npx prisma migrate dev
 ```
 
----
-
-### 5. Start application
+### 5. Iniciar aplicação
 
 ```bash
 npm run dev
@@ -287,68 +275,53 @@ npm run dev
 
 ---
 
-## 📡 API Example
+## 📌 Funcionalidades Implementadas
 
-### Create Order
-
-```http
-POST /api/orders
-```
-
-### Body
-
-```json
-{
-  "customerId": "uuid",
-  "items": [
-    {
-      "productId": "uuid",
-      "quantidade": 2
-    }
-  ]
-}
-```
+- ✅ Gestão de Produtos (CRUD completo por fornecedor)
+- ✅ Gestão de Clientes (cadastro, busca por CPF, atualização de endereço)
+- ✅ Gestão de Fornecedores (cadastro com CNPJ e coordenadas geográficas)
+- ✅ Gestão de Pedidos (fluxo completo de 5 steps)
+- ✅ Controle de estoque em tempo real
+- ✅ Soft delete em todas as entidades
+- ✅ Cálculo de frete por distância (Haversine)
+- ✅ Cache de geolocalização por CEP no banco de dados
+- ✅ Integração com API CEP Aberto (autenticada)
+- ✅ Transações atômicas (estoque + pedido)
+- ✅ Validações de domínio (CPF, CNPJ, CEP, email, telefone, coordenadas)
+- ✅ Sanitização de inputs nas APIs
+- ✅ Validação UUID nas rotas
+- ✅ Paginação nas listagens
+- ✅ Clean Architecture + DDD
 
 ---
 
-## 🧠 Architectural Decisions
+## 🚀 Próximas Melhorias
 
-### Why not CRUD?
-
-Because the system is **business-driven**, not database-driven.
-
----
-
-### Why Aggregate Root?
-
-`Order` controls `OrderItem` to ensure consistency.
+- Workflow de status do pedido (PENDING → DELIVERED)
+- Autenticação e autorização
+- Domain events
+- Testes unitários dos Use Cases
+- Dashboard administrativo
+- Notificações em tempo real
 
 ---
 
-### Why Use Cases?
+## 🤝 Contribuindo
 
-To isolate **application logic** from infrastructure.
-
----
-
-## 🤝 Contributing
-
-1. Follow the architecture
-2. Keep domain isolated
-3. Add business rules inside entities
-4. Use repositories for persistence
-5. Avoid direct Prisma usage outside infrastructure
+1. Siga a arquitetura em camadas
+2. Mantenha o domínio isolado de dependências externas
+3. Adicione regras de negócio dentro das entidades
+4. Use repositórios para persistência
+5. Evite uso direto do Prisma fora da infraestrutura
 
 ---
 
-## 📄 License
+## 📄 Licença
 
-This project is licensed under the MIT License.
-
----
-
-## 👨‍💻 Author
-
-Developed as a **professional architecture reference project**.
+MIT License
 
 ---
+
+## 👨‍💻 Autor
+
+Desenvolvido como **referência profissional de arquitetura** com Next.js, Clean Architecture e DDD.

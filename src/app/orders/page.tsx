@@ -40,7 +40,6 @@ export default async function OrdersPage() {
 
                 <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
                   <span>Cliente: <span className="font-medium text-black dark:text-white">{order.customer?.nome ?? order.customerId}</span></span>
-                  <span>Total: <span className="font-semibold text-black dark:text-white">R$ {order.valorTotal.toFixed(2)}</span></span>
                 </div>
 
                 {order.getItems().length > 0 && (
@@ -57,6 +56,21 @@ export default async function OrdersPage() {
                           </span>
                         </div>
                       ))}
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-col gap-1">
+                      <div className="flex justify-between text-sm text-zinc-500 dark:text-zinc-400">
+                        <span>Subtotal</span>
+                        <span>R$ {order.valorTotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-zinc-500 dark:text-zinc-400">
+                        <span>Frete</span>
+                        <span>{order.frete > 0 ? `R$ ${order.frete.toFixed(2)}` : "A combinar"}</span>
+                      </div>
+                      <div className="flex justify-between text-sm font-semibold text-black dark:text-white">
+                        <span>Total</span>
+                        <span>R$ {(order.valorTotal + order.frete).toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 )}

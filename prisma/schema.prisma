@@ -58,6 +58,7 @@ enum OrderStatus{
 model Order{
   id          String       @id @default(uuid())
   total       Decimal      @db.Decimal(10, 2)
+  frete       Decimal      @db.Decimal(10, 2) @default(0)
   status      OrderStatus  @default(PENDING)
   customerId  String
   customer    Customer     @relation(fields: [customerId], references: [id])
@@ -88,6 +89,14 @@ model OrderItem{
   @@index([deletedAt])
   @@index([orderId])
   @@index([productId])
+}
+
+model Geolocalizacao {
+  cep       String  @id
+  latitude  Float
+  longitude Float
+
+  @@index([cep])
 }
 
 model Supplier {

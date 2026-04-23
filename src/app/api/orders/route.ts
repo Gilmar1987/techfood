@@ -13,6 +13,7 @@ export async function POST(request: Request) {
 
     const customerId = typeof body.customerId === "string" ? body.customerId.trim() : "";
     const supplierId = typeof body.supplierId === "string" ? body.supplierId.trim() : "";
+    const frete = typeof body.frete === "number" ? body.frete : 0;
 
     if (!customerId || !supplierId || !UUID_REGEX.test(customerId) || !UUID_REGEX.test(supplierId)) {
       return NextResponse.json({ error: "customerId and supplierId must be valid UUIDs" }, { status: 400 });
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
       return { productId, quantidade };
     });
 
-    const order = await createOrderUseCase.execute({ customerId, supplierId, items });
+    const order = await createOrderUseCase.execute({ customerId, supplierId, frete, items });
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {

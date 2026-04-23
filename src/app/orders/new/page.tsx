@@ -187,6 +187,7 @@ export default function NewOrderPage() {
         body: JSON.stringify({
           customerId: customer.id,
           supplierId: supplier.id,
+          frete: frete?.semCoordenadas ? 0 : (frete?.valor ?? 0),
           items: items.map((i) => ({ productId: i.productId, quantidade: i.quantidade })),
         }),
       });
