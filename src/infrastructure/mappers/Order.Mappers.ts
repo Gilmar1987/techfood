@@ -1,5 +1,5 @@
 import { Order } from "@/domain/entities/Order";
-import { OrderStatus } from "@/domain/enums/OrderStatus";
+import { OrderStatus, PaymentMethod } from "@/domain/enums/OrderStatus";
 import { OrderItemMapper } from "@/infrastructure/mappers/OrderItem.Mappers";
 
 type OrderWithItems = {
@@ -7,6 +7,8 @@ type OrderWithItems = {
   total: any;
   frete: any;
   status: string;
+  paymentMethod: string | null;
+  paidAt: Date | null;
   customerId: string;
   supplierId: string;
   createdAt: Date;
@@ -23,6 +25,8 @@ export class OrderMapper {
       total: order.valorTotal,
       frete: order.frete,
       status: order.statusOrder,
+      paymentMethod: order.getPaymentMethod() ?? null,
+      paidAt: order.getPaidAt() ?? null,
       customerId: order.customerId,
       supplierId: order.supplierId,
     };
@@ -39,7 +43,9 @@ export class OrderMapper {
       order.createdAt,
       order.updatedAt,
       order.deletedAt,
-      order.customer ? { id: order.customerId, nome: order.customer.nome } as any : null
+      order.customer ? { id: order.customerId, nome: order.customer.nome } as any : null,
+      order.paymentMethod as PaymentMethod | undefined,
+      order.paidAt ?? undefined
     );
     if (order.items) {
       order.items.forEach(item => domainOrder.addItem(OrderItemMapper.toDomain(item)));

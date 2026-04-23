@@ -10,6 +10,8 @@ import { PrismaOrderItemRepository } from '@/infrastructure/repositories/PrismaO
 import { CreateProductUseCase } from '@/server/usecases/CreateProductUseCase';
 import { CreateCustomerUseCase } from '@/server/usecases/CreateCustomerUseCase';
 import { CreateSupplierUseCase } from '@/server/usecases/CreateSupplierUseCase';
+import { PayOrderUseCase } from '@/server/usecases/PayOrderUseCase';
+import { UpdateOrderStatusUseCase } from '@/server/usecases/UpdateOrderStatusUseCase';
 import { TransactionManager } from '@/infrastructure/database/TransactionManager';
 
 function makeContainer() {
@@ -35,3 +37,5 @@ export const createOrderUseCase = container.createOrderUseCase;
 export const createProductUseCase = new CreateProductUseCase(productRepository);
 export const createCustomerUseCase = new CreateCustomerUseCase(customerRepository);
 export const createSupplierUseCase = new CreateSupplierUseCase(supplierRepository);
+export const payOrderUseCase = new PayOrderUseCase(orderRepository);
+export const updateOrderStatusUseCase = new UpdateOrderStatusUseCase(orderRepository);

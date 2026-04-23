@@ -17,7 +17,7 @@ const features = [
     icon: "📦",
     title: "Gestão de Pedidos",
     description: "Acompanhe pedidos em tempo real, do recebimento à entrega.",
-    href: "/orders",
+    href: "/orders/manage",
   },
   {
     icon: "🏭",

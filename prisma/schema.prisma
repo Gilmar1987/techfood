@@ -48,6 +48,7 @@ model Customer{
 
 enum OrderStatus{
   PENDING
+  PAID
   PREPARING
   READY
   OUT_FOR_DELIVERY
@@ -55,19 +56,27 @@ enum OrderStatus{
   CANCELLED
 }
 
+enum PaymentMethod{
+  PIX
+  CARD
+  CASH
+}
+
 model Order{
-  id          String       @id @default(uuid())
-  total       Decimal      @db.Decimal(10, 2)
-  frete       Decimal      @db.Decimal(10, 2) @default(0)
-  status      OrderStatus  @default(PENDING)
-  customerId  String
-  customer    Customer     @relation(fields: [customerId], references: [id])
-  supplierId  String
-  supplier    Supplier     @relation(fields: [supplierId], references: [id])
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  deletedAt   DateTime?
-  items       OrderItem[]
+  id            String        @id @default(uuid())
+  total         Decimal       @db.Decimal(10, 2)
+  frete         Decimal       @db.Decimal(10, 2) @default(0)
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod?
+  paidAt        DateTime?
+  customerId    String
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  supplierId    String
+  supplier      Supplier      @relation(fields: [supplierId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  items         OrderItem[]
 
   @@index([deletedAt])
   @@index([customerId])

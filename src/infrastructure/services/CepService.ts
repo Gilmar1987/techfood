@@ -42,13 +42,13 @@ export class CepService {
     return data;
   }
 
-  getCoordinates(data: CepData): { lat: number; lon: number } | null {
-    const lat = parseFloat(data.latitude ?? "");
-    const lon = parseFloat(data.longitude ?? "");
+  getCoordinates(data: CepData): { latitude: number; longitude: number } | null {
+    const latitude = parseFloat(data.latitude ?? "");
+    const longitude = parseFloat(data.longitude ?? "");
 
-    if (isNaN(lat) || isNaN(lon) || lat === 0 || lon === 0) return null;
+    if (isNaN(latitude) || isNaN(longitude) || latitude === 0 || longitude === 0) return null;
 
-    return { lat, lon };
+    return { latitude, longitude };
   }
 
   getEnderecoFormatado(data: CepData): string {

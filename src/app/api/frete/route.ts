@@ -52,11 +52,11 @@ export async function GET(request: Request) {
       }
 
       // Salvar no cache para próximas consultas
-      await geoRepo.save(cep, coords.lat, coords.lon);
+      await geoRepo.save(cep, coords.latitude, coords.longitude);
     }
 
     const distanciaKm = FreteService.calcularDistanciaKm(
-      coords.lat, coords.lon,
+      coords.latitude, coords.longitude,
       supplier.latitude, supplier.longitude
     );
 

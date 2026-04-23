@@ -8,7 +8,7 @@ type CustomerData = { id: string; nome: string; email: string; cpf: string; ende
 type SupplierData = { id: string; razaoSocial: string; cnpj: string };
 type ProductData = { id: string; nome: string; preco: number; quantidade: number };
 type OrderItem = { productId: string; nome: string; preco: number; quantidade: number };
-type FreteData = { distanciaKm: number | null; valor: number; prazoEstimadoDias: number | null; faixa: string; endereco: string; semCoordenadas?: boolean };
+type FreteData = { distanciaKm: number | null; valor: number | null; prazoEstimadoDias: number | null; faixa: string; endereco: string; semCoordenadas?: boolean };
 
 type Step = "identify" | "register" | "address" | "supplier" | "order";
 
@@ -173,7 +173,7 @@ export default function NewOrderPage() {
   }
 
   const subtotal = items.reduce((t, i) => t + i.preco * i.quantidade, 0);
-  const totalComFrete = subtotal + (frete && !frete.semCoordenadas ? frete.valor : 0);
+  const totalComFrete = subtotal + (frete && !frete.semCoordenadas ? (frete.valor ?? 0) : 0);
 
   async function handleSubmit() {
     if (!customer || !supplier || items.length === 0) return;
@@ -381,7 +381,7 @@ export default function NewOrderPage() {
                   <>
                     <p className="text-sm text-blue-800 dark:text-blue-200">{frete.faixa} — {frete.distanciaKm?.toFixed(1)} km</p>
                     <p className="text-xs text-blue-600 dark:text-blue-400">Entrega em até {frete.prazoEstimadoDias} dia{(frete.prazoEstimadoDias ?? 0) > 1 ? "s" : ""} · {frete.endereco}</p>
-                    <p className="text-base font-bold text-blue-700 dark:text-blue-300 mt-1">R$ {frete.valor.toFixed(2)}</p>
+                    <p className="text-base font-bold text-blue-700 dark:text-blue-300 mt-1">R$ {(frete.valor ?? 0).toFixed(2)}</p>
                   </>
                 )}
               </div>
@@ -442,10 +442,10 @@ export default function NewOrderPage() {
                     <span>Subtotal</span>
                     <span>R$ {subtotal.toFixed(2)}</span>
                   </div>
-                  {frete && (
+                  {frete && !frete.semCoordenadas && (
                     <div className="flex justify-between text-sm text-zinc-500">
                       <span>Frete ({frete.faixa})</span>
-                      <span>R$ {frete.valor.toFixed(2)}</span>
+                      <span>R$ {(frete.valor ?? 0).toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-base font-semibold text-black dark:text-white mt-1">

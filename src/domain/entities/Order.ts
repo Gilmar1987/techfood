@@ -1,27 +1,12 @@
-/*
-model Order{
-  id          String       @id @default(uuid())
-  total       Decimal      @db.Decimal(10, 2)
-  status      OrderStatus  @default(PENDING)
-  customerId  String
-  customer    Customer     @relation(fields: [customerId], references: [id])
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  deletedAt   DateTime?
-  items       OrderItem[]
-
-  @@index([deletedAt])
-  @@index([customerId])
-}
-  */
-
 import { Customer } from "./Customer";
-import { Product } from "./Product";
 import { OrderItem } from "./OrderItem";
-import { OrderStatus } from "@/domain/enums/OrderStatus";
+import { OrderStatus, PaymentMethod, STATUS_TRANSITIONS } from "@/domain/enums/OrderStatus";
 
 export class Order {
   private items: OrderItem[] = [];
+  private paymentMethod?: PaymentMethod;
+  private paidAt?: Date;
+
   constructor(
     public id: string,
     public total: number,
@@ -32,31 +17,66 @@ export class Order {
     public createdAt?: Date,
     public updatedAt?: Date,
     public deletedAt?: Date | null,
-    public customer?: Customer | null
-  ) {}
-  addItem(item: OrderItem) {
-    this.items.push(item);
+    public customer?: Customer | null,
+    paymentMethod?: PaymentMethod,
+    paidAt?: Date
+  ) {
+    this.paymentMethod = paymentMethod;
+    this.paidAt = paidAt;
   }
-  getItems(): ReadonlyArray<OrderItem> {
-    return Object.freeze(this.items);
-  }
+
+  addItem(item: OrderItem) { this.items.push(item); }
+
+  getItems(): ReadonlyArray<OrderItem> { return Object.freeze(this.items); }
 
   get valorTotal(): number {
     return this.items.reduce((sum, item) => sum + item.subtotal, 0);
   }
 
-  get statusOrder() {
-    return this.status;
-  }
+  get statusOrder() { return this.status; }
+
+  getPaymentMethod() { return this.paymentMethod; }
+
+  getPaidAt() { return this.paidAt; }
 
   calcularTotal(): void {
     this.total = this.items.reduce((sum, item) => sum + item.subtotal, 0);
   }
 
   validate() {
-    if (this.items.length === 0) {
-      throw new Error("Pedido deve ter pelo menos um item");
-    }
+    if (this.items.length === 0) throw new Error("Pedido deve ter pelo menos um item");
   }
-}
 
+  markAsPaid(method: PaymentMethod): void {
+    if (this.status !== OrderStatus.PENDING) {
+      throw new Error("Pagamento só permitido para pedidos pendentes");
+    }
+    this.paymentMethod = method;
+    this.paidAt = new Date();
+    this.status = OrderStatus.PAID;
+  }
+
+  avancarStatus(): void {
+    const transitions = STATUS_TRANSITIONS[this.status];
+    const next = transitions.find((s) => s !== OrderStatus.CANCELLED);
+
+    if (!next) {
+      throw new Error(`Pedido com status ${this.status} não pode ser avançado`);
+    }
+    if (this.status === OrderStatus.PENDING) {
+      throw new Error("Pedido deve ser pago antes de ser preparado");
+    }
+
+    this.status = next;
+  }
+
+  cancelar(): void {
+    const transitions = STATUS_TRANSITIONS[this.status];
+    if (!transitions.includes(OrderStatus.CANCELLED)) {
+      throw new Error(`Pedido com status ${this.status} não pode ser cancelado`);
+    }
+    this.status = OrderStatus.CANCELLED;
+  }
+
+  canBePrepared(): boolean { return this.status === OrderStatus.PAID; }
+}
