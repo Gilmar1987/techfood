@@ -5,19 +5,25 @@ const features = [
     icon: "🍔",
     title: "Gestão de Produtos",
     description: "Cadastre, edite e controle o estoque dos seus produtos com facilidade.",
-    href: "/products",
+    href: "/products/manage",
   },
   {
     icon: "👤",
     title: "Gestão de Clientes",
     description: "Gerencie seus clientes e mantenha um histórico completo de pedidos.",
-    href: "/customers",
+    href: "/customer",
   },
   {
     icon: "📦",
     title: "Gestão de Pedidos",
     description: "Acompanhe pedidos em tempo real, do recebimento à entrega.",
     href: "/orders",
+  },
+  {
+    icon: "🏭",
+    title: "Gestão de Fornecedores",
+    description: "Cadastre fornecedores e vincule produtos e pedidos a cada um.",
+    href: "/supplier",
   },
 ];
 
@@ -69,11 +75,14 @@ export default function Home() {
           >
             Ver Produtos
           </Link>
-          <Link
-            href="/orders"
-            className="h-11 px-6 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          >
+          <Link href="/supplier/new" className="h-11 px-6 rounded-full bg-orange-500 text-white text-sm font-semibold transition-colors hover:bg-orange-600">
+            + Cadastrar Fornecedor
+          </Link>
+          <Link href="/orders" className="h-11 px-6 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
             Ver Pedidos
+          </Link>
+          <Link href="/supplier" className="h-11 px-6 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
+            Ver Fornecedores
           </Link>
         </div>
       </section>

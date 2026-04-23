@@ -28,6 +28,39 @@ export async function GET(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+
+    const id = typeof body.id === "string" ? body.id.trim() : "";
+    const endereco = typeof body.endereco === "string" ? body.endereco.trim().replace(/[^a-zA-Z\u00C0-\u00FF0-9\s,.-]/g, "") : "";
+    const cep = typeof body.cep === "string" ? body.cep.trim().replace(/[^\d-]/g, "") : "";
+
+    if (!id || !endereco || !cep) {
+      return NextResponse.json({ error: "id, endereco and cep are required" }, { status: 400 });
+    }
+
+    const existing = await customerRepository.findById(id);
+    if (!existing) {
+      return NextResponse.json({ error: "Customer not found" }, { status: 404 });
+    }
+
+    const { Customer } = await import("@/domain/entities/Customer");
+    const updated = new Customer(
+      existing.id, existing.nome, existing.email, endereco, cep,
+      existing.cpf, existing.telefone, existing.createdAt, new Date(), existing.deletedAt
+    );
+    await customerRepository.update(updated);
+    return NextResponse.json(updated, { status: 200 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -36,9 +69,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const nome = typeof body.nome === "string" ? body.nome.trim().replace(/[^a-zA-ZÀ-ÿ\s]/g, "") : "";
+    const nome = typeof body.nome === "string" ? body.nome.trim().replace(/[^a-zA-Z\u00C0-\u00FF\s]/g, "") : "";
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase().replace(/[^a-z0-9@._-]/g, "") : "";
-    const endereco = typeof body.endereco === "string" ? body.endereco.trim().replace(/[^a-zA-ZÀ-ÿ0-9\s,.-]/g, "") : "";
+    const endereco = typeof body.endereco === "string" ? body.endereco.trim().replace(/[^a-zA-Z\u00C0-\u00FF0-9\s,.-]/g, "") : "";
     const cep = typeof body.cep === "string" ? body.cep.trim().replace(/[^\d-]/g, "") : "";
     const cpf = typeof body.cpf === "string" ? body.cpf.trim().replace(/[^\d]/g, "") : "";
     const telefone = typeof body.telefone === "string" ? body.telefone.trim() : "";

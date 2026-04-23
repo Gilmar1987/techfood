@@ -27,10 +27,10 @@ export class Order {
     public total: number,
     private status: OrderStatus,
     public customerId: string,
+    public supplierId: string,
     public createdAt?: Date,
     public updatedAt?: Date,
     public deletedAt?: Date | null,
-//    public items: OrderItem[] = [],
     public customer?: Customer | null
   ) {}
   addItem(item: OrderItem) {

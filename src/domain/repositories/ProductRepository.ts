@@ -13,5 +13,6 @@ export interface ProductRepository {
   update(product: Product): Promise<void>;
   softDelete(id: string): Promise<void>;
   findByIds(ids: string[]): Promise<Product[]>;
+  findBySupplierId(supplierId: string): Promise<Product[]>;
   descrementStock(productId: string, quantidade: number, tx?: TransactionClient): Promise<void>;
 }

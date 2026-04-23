@@ -1,5 +1,6 @@
 import { orderRepository } from "@/server/container";
 import { Order } from "@/domain/entities/Order";
+import Link from "next/link";
 
 export default async function OrdersPage() {
   const orders = await orderRepository.findAll();
@@ -7,9 +8,17 @@ export default async function OrdersPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-semibold text-black dark:text-white mb-8">
-          Pedidos
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-semibold text-black dark:text-white">Pedidos</h1>
+          <div className="flex gap-3">
+            <Link href="/orders/new" className="h-10 px-5 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium flex items-center transition-colors hover:bg-zinc-800 dark:hover:bg-zinc-200">
+              + Novo Pedido
+            </Link>
+            <Link href="/" className="h-10 px-5 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 flex items-center transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
+              Home
+            </Link>
+          </div>
+        </div>
 
         {orders.length === 0 ? (
           <p className="text-zinc-500">Nenhum pedido encontrado.</p>

@@ -8,6 +8,7 @@ export class ProductMapper {
       prismaProduct.nome,
       Number(prismaProduct.preco),
       prismaProduct.quantidade,
+      prismaProduct.supplierId,
       prismaProduct.createdAt,
       prismaProduct.updatedAt,
       prismaProduct.deletedAt
@@ -20,6 +21,7 @@ export class ProductMapper {
       nome: product.nome,
       preco: product.preco,
       quantidade: product.quantidade,
+      supplierId: product.supplierId,
     };
   }
 }

@@ -17,10 +17,10 @@ export class Product {
     public nome: string,
     public preco: number,
     public quantidade: number,
+    public supplierId: string,
     public createdAt?: Date,
     public updatedAt?: Date,
     public deletedAt?: Date | null
-
   ) {}
   decreaseStock(amount: number): void {
     if (amount > this.quantidade) {

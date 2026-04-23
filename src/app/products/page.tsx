@@ -25,6 +25,12 @@ export default async function ProductsPage() {
           >
             + Novo Produto
           </Link>
+          <Link
+            href="/products/manage"
+            className="h-10 px-5 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 flex items-center transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          >
+            Gerenciar
+          </Link>
         </div>
 
         <ProductList products={serialized} />

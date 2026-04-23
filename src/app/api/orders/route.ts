@@ -9,10 +9,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const customerId = typeof body.customerId === "string" ? body.customerId.trim() : "";
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-    if (!customerId) {
-      return NextResponse.json({ error: "customerId is required" }, { status: 400 });
+    const customerId = typeof body.customerId === "string" ? body.customerId.trim() : "";
+    const supplierId = typeof body.supplierId === "string" ? body.supplierId.trim() : "";
+
+    if (!customerId || !supplierId || !UUID_REGEX.test(customerId) || !UUID_REGEX.test(supplierId)) {
+      return NextResponse.json({ error: "customerId and supplierId must be valid UUIDs" }, { status: 400 });
     }
 
     if (!Array.isArray(body.items) || body.items.length === 0) {
@@ -24,11 +27,11 @@ export async function POST(request: Request) {
       const i = item as Record<string, unknown>;
       const productId = typeof i.productId === "string" ? i.productId.trim() : "";
       const quantidade = Number(i.quantidade);
-      if (!productId || isNaN(quantidade) || quantidade <= 0) throw new Error("Invalid item fields");
+      if (!productId || !UUID_REGEX.test(productId) || isNaN(quantidade) || quantidade <= 0) throw new Error("Invalid item fields");
       return { productId, quantidade };
     });
 
-    const order = await createOrderUseCase.execute({ customerId, items });
+    const order = await createOrderUseCase.execute({ customerId, supplierId, items });
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {

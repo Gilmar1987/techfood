@@ -6,17 +6,17 @@ type CreateProductInput = {
     nome: string;
     preco: number;
     quantidade: number;
+    supplierId: string;
 }
 
 export class CreateProductUseCase {
     constructor(private productReposytory: ProductRepository) { }
 
     async execute(input: CreateProductInput) {
-        const { nome, preco, quantidade } = input;
+        const { nome, preco, quantidade, supplierId } = input;
 
-        // Validar os dados de entrada
-        if (!nome || preco == null || quantidade == null) {
-            throw new Error("Nome, preço e quantidade são obrigatórios.");
+        if (!nome || preco == null || quantidade == null || !supplierId) {
+            throw new Error("Nome, preço, quantidade e fornecedor são obrigatórios.");
         }
         if (preco <= 0) {
             throw new Error("O preço deve ser um valor positivo.");
@@ -36,10 +36,10 @@ export class CreateProductUseCase {
             nome,
             preco,
             quantidade,
+            supplierId,
             new Date(),
             new Date(),
             null
-            
         );
         await this.productReposytory.create(product);
         return product;

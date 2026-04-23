@@ -8,6 +8,7 @@ import { TransactionManager } from "@/infrastructure/database/TransactionManager
 
 interface CreateOrderInput {
   customerId: string;
+  supplierId: string;
   items: { productId: string; quantidade: number }[];
 }
 
@@ -20,7 +21,7 @@ export class CreateOrderUseCase {
   ) {}
 
   async execute(input: CreateOrderInput): Promise<Order> {
-    const { customerId, items } = input;
+    const { customerId, supplierId, items } = input;
 
     const customer = await this.customerRepository.findById(customerId);
     if (!customer) throw new Error("Customer not found");
@@ -33,6 +34,7 @@ export class CreateOrderUseCase {
       0,
       OrderStatus.PENDING,
       customerId,
+      supplierId,
       new Date(),
       new Date()
     );

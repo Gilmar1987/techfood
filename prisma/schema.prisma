@@ -93,6 +93,7 @@ model OrderItem{
 model Supplier {
   id          String    @id @default(uuid())
   razaoSocial String
+  cnpj        String    @unique
   endereco    String
   telefone    String
   email       String    @unique

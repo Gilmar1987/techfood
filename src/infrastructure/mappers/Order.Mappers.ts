@@ -7,6 +7,7 @@ type OrderWithItems = {
   total: any;
   status: string;
   customerId: string;
+  supplierId: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
@@ -21,6 +22,7 @@ export class OrderMapper {
       total: order.valorTotal,
       status: order.statusOrder,
       customerId: order.customerId,
+      supplierId: order.supplierId,
     };
   }
 
@@ -30,6 +32,7 @@ export class OrderMapper {
       Number(order.total),
       order.status as OrderStatus,
       order.customerId,
+      order.supplierId,
       order.createdAt,
       order.updatedAt,
       order.deletedAt,
