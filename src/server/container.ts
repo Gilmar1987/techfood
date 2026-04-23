@@ -42,4 +42,4 @@ export const createProductUseCase = new CreateProductUseCase(productRepository);
 export const createCustomerUseCase = new CreateCustomerUseCase(customerRepository);
 export const createSupplierUseCase = new CreateSupplierUseCase(supplierRepository, container.geoRepo, container.cepService);
 export const payOrderUseCase = new PayOrderUseCase(orderRepository);
-export const updateOrderStatusUseCase = new UpdateOrderStatusUseCase(orderRepository);
+export const updateOrderStatusUseCase = new UpdateOrderStatusUseCase(orderRepository, container.productRepository, new TransactionManager());

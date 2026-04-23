@@ -15,4 +15,5 @@ export interface ProductRepository {
   findByIds(ids: string[]): Promise<Product[]>;
   findBySupplierId(supplierId: string): Promise<Product[]>;
   descrementStock(productId: string, quantidade: number, tx?: TransactionClient): Promise<void>;
+  increaseStock(productId: string, quantidade: number, tx?: TransactionClient): Promise<void>;
 }

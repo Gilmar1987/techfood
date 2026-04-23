@@ -1,7 +1,13 @@
 import { OrderRepository } from "@/domain/repositories/OrderReposutory";
+import { ProductRepository } from "@/domain/repositories/ProductRepository";
+import { TransactionManager } from "@/infrastructure/database/TransactionManager";
 
 export class UpdateOrderStatusUseCase {
-  constructor(private orderRepository: OrderRepository) {}
+  constructor(
+    private orderRepository: OrderRepository,
+    private productRepository: ProductRepository,
+    private transactionManager: TransactionManager
+  ) {}
 
   async advance(orderId: string): Promise<void> {
     const order = await this.orderRepository.findById(orderId);
@@ -16,6 +22,12 @@ export class UpdateOrderStatusUseCase {
     if (!order) throw new Error("Pedido não encontrado");
 
     order.cancelar();
-    await this.orderRepository.update(order);
+
+    await this.transactionManager.execute(async (tx) => {
+      await this.orderRepository.update(order);
+      for (const item of order.getItems()) {
+        await this.productRepository.increaseStock(item.productId, item.quantidade, tx);
+      }
+    });
   }
 }
