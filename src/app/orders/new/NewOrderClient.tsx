@@ -80,7 +80,7 @@ export default function NewOrderClient({ customer: initialCustomer }: { customer
   }
 
   function addItem(product: ProductData) {
-    if (items.find((i) => i.productId === product.id)?.quantidade ?? 0 >= product.quantidade) return;
+    if ((items.find((i) => i.productId === product.id)?.quantidade ?? 0) >= product.quantidade) return;
     const exist = items.find((i) => i.productId === product.id);
     if (exist) {
       setItems(items.map((i) => i.productId === product.id ? { ...i, quantidade: i.quantidade + 1 } : i));

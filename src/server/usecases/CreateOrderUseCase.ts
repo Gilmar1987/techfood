@@ -61,9 +61,11 @@ export class CreateOrderUseCase {
     order.calcularTotal();
 
     return this.transactionManager.execute(async (tx) => {
-      for (const item of order.getItems()) {
-        await this.productRepository.descrementStock(item.productId, item.quantidade, tx);
-      }
+      await Promise.all(
+        order.getItems().map((item) =>
+          this.productRepository.descrementStock(item.productId, item.quantidade, tx)
+        )
+      );
       await this.orderRepository.create(order, tx);
       return order;
     });

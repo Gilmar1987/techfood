@@ -7,6 +7,6 @@ export interface OrderRepository {
   findAll(): Promise<Order[]>;
   findAllByCustomerId(customerId: string): Promise<Order[]>;
   findAllBySupplierId(supplierId: string): Promise<Order[]>;
-  update(order: Order): Promise<void>;
+  update(order: Order, tx?: TransactionClient): Promise<void>;
   softDelete(id: string): Promise<void>;
 }

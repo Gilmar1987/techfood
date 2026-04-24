@@ -24,10 +24,12 @@ export class UpdateOrderStatusUseCase {
     order.cancelar();
 
     await this.transactionManager.execute(async (tx) => {
-      await this.orderRepository.update(order);
-      for (const item of order.getItems()) {
-        await this.productRepository.increaseStock(item.productId, item.quantidade, tx);
-      }
+      await Promise.all([
+        this.orderRepository.update(order, tx),
+        ...order.getItems().map((item) =>
+          this.productRepository.increaseStock(item.productId, item.quantidade, tx)
+        ),
+      ]);
     });
   }
 }

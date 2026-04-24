@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 type OrderItem = { id: string; quantidade: number; precoUnitario: number; product: { nome: string } };
@@ -34,13 +34,32 @@ export default function ClienteOrdersClient({ initialOrders, cpf, customerNome }
   const [payingId, setPayingId] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const isInteracting = useRef(false);
 
-  async function refresh() {
+  const refresh = async () => {
+    if (isInteracting.current) return;
     const res = await fetch(`/api/orders?cpf=${cpf}`);
-    if (res.ok) setOrders(await res.json());
-  }
+    if (res.ok) {
+      setOrders(await res.json());
+      setLastUpdated(new Date());
+    }
+  };
+
+  useEffect(() => {
+    const es = new EventSource(`/api/orders/stream?cpf=${cpf}`);
+    es.onmessage = (e) => {
+      if (isInteracting.current) return;
+      try {
+        setOrders(JSON.parse(e.data));
+        setLastUpdated(new Date());
+      } catch { /* ignore parse errors */ }
+    };
+    return () => es.close();
+  }, [cpf]);
 
   async function handlePay(orderId: string, paymentMethod: string) {
+    isInteracting.current = true;
     setActionLoading(orderId);
     setError("");
     try {
@@ -57,11 +76,13 @@ export default function ClienteOrdersClient({ initialOrders, cpf, customerNome }
       setError(err instanceof Error ? err.message : "Erro ao registrar pagamento");
     } finally {
       setActionLoading(null);
+      isInteracting.current = false;
     }
   }
 
   async function handleCancel(orderId: string) {
     if (!confirm("Deseja cancelar este pedido?")) return;
+    isInteracting.current = true;
     setActionLoading(orderId);
     setError("");
     try {
@@ -77,6 +98,7 @@ export default function ClienteOrdersClient({ initialOrders, cpf, customerNome }
       setError(err instanceof Error ? err.message : "Erro ao cancelar pedido");
     } finally {
       setActionLoading(null);
+      isInteracting.current = false;
     }
   }
 
@@ -90,10 +112,20 @@ export default function ClienteOrdersClient({ initialOrders, cpf, customerNome }
             <h1 className="text-3xl font-semibold text-black dark:text-white">Meus Pedidos</h1>
             <p className="text-sm text-zinc-500 mt-1">Olá, {customerNome}</p>
           </div>
-          <Link href="/dashboard/customer"
-            className="h-10 px-5 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 flex items-center transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
-            Dashboard
-          </Link>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              {lastUpdated && (
+                <span className="flex items-center gap-1.5 text-xs text-zinc-400">
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block" />
+                  Atualizado às {lastUpdated.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                </span>
+              )}
+            </div>
+            <Link href="/dashboard/customer"
+              className="h-10 px-5 rounded-full border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 flex items-center transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
+              Dashboard
+            </Link>
+          </div>
         </div>
 
         {error && <p className="mb-4 text-sm text-red-500 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">{error}</p>}

@@ -19,9 +19,7 @@ export class PrismaOrderRepository implements OrderRepository {
         await db.order.create({ data: OrderMapper.toPrisma(order) });
 
         if (order.getItems().length) {
-            for (const item of order.getItems()) {
-                await this.orderItemRepository.create(item, tx);
-            }
+            await this.orderItemRepository.createMany(order.getItems() as OrderItem[], tx);
         }
     }
     
@@ -67,8 +65,9 @@ export class PrismaOrderRepository implements OrderRepository {
         return prismaOrders.map(OrderMapper.toDomain);
     }
 
-    async update(order: Order): Promise<void> {
-        await this.prisma.order.update({
+    async update(order: Order, tx?: Prisma.TransactionClient): Promise<void> {
+        const db = tx ?? this.prisma;
+        await db.order.update({
             where: { id: order.id },
             data: OrderMapper.toPrisma(order)
         });

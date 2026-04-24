@@ -11,6 +11,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 token.id = user.id;
                 token.role = user.role;
                 token.cpf = user.cpf;
+                token.cnpj = user.cnpj;
             }
             return token;
         },
@@ -19,6 +20,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session.user.id = token.id as string;
                 session.user.role = token.role;
                 session.user.cpf = token.cpf;
+                session.user.cnpj = token.cnpj;
             }
             return session;
         },

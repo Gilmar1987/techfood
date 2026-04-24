@@ -33,6 +33,7 @@ export const credentialsProvider = Credentials({
                 email: user.email,
                 role: user.role,
                 cpf: user.cpf,
+                cnpj: user.cnpj,
             };
         } catch (error) {
             console.error("Error during authentication:", error);

@@ -9,6 +9,13 @@ import { OrderItemMapper } from "@/infrastructure/mappers/OrderItem.Mappers";
 export class PrismaOrderItemRepository implements OrderItemRepository {
     constructor(private prisma: PrismaClient) {}
 
+    async createMany(orderItems: OrderItem[], tx?: Prisma.TransactionClient): Promise<void> {
+        const db = tx ?? this.prisma;
+        await db.orderItem.createMany({
+            data: orderItems.map(OrderItemMapper.toPrisma),
+        });
+    }
+
     async create(orderItem: OrderItem, tx?: Prisma.TransactionClient): Promise<void> {
         const db = tx ?? this.prisma;
         try {
