@@ -30,10 +30,9 @@ export const credentialsProvider = Credentials({
 
             return {
                 id: user.id,
-                
                 email: user.email,
-                
-                role: user.role
+                role: user.role,
+                cpf: user.cpf,
             };
         } catch (error) {
             console.error("Error during authentication:", error);
