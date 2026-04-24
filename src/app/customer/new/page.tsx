@@ -12,6 +12,7 @@ export default function NewCustomerPage() {
   const [cep, setCep] = useState("");
   const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -26,7 +27,7 @@ export default function NewCustomerPage() {
       const response = await fetch("/api/customer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, email, endereco, cep, cpf, telefone }),
+        body: JSON.stringify({ nome, email, endereco, cep, cpf, telefone, password }),
       });
 
       const data = await response.json();
@@ -42,6 +43,7 @@ export default function NewCustomerPage() {
       setCep("");
       setCpf("");
       setTelefone("");
+      setPassword("");
       setTimeout(() => router.push("/customer"), 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -148,6 +150,21 @@ export default function NewCustomerPage() {
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
               placeholder="(00) 00000-0000"
+              required
+              className={inputClass}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="password" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Senha
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
               required
               className={inputClass}
             />

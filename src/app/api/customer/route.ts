@@ -75,12 +75,13 @@ export async function POST(request: Request) {
     const cep = typeof body.cep === "string" ? body.cep.trim().replace(/[^\d-]/g, "") : "";
     const cpf = typeof body.cpf === "string" ? body.cpf.trim().replace(/[^\d]/g, "") : "";
     const telefone = typeof body.telefone === "string" ? body.telefone.trim() : "";
+    const password = typeof body.password === "string" ? body.password : "";
 
-    if (!nome || !email || !endereco || !cep || !cpf) {
+    if (!nome || !email || !endereco || !cep || !cpf || !password) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    const customer = await createCustomerUseCase.execute({ nome, email, endereco, cep, cpf, telefone });
+    const customer = await createCustomerUseCase.execute({ nome, email, endereco, cep, cpf, telefone, password });
 
     return NextResponse.json(customer, { status: 201 });
   } catch (error) {

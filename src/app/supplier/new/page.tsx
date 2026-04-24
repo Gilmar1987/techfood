@@ -17,6 +17,7 @@ export default function NewSupplierPage() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [geoStatus, setGeoStatus] = useState<GeoStatus>("idle");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -57,12 +58,7 @@ export default function NewSupplierPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          razaoSocial,
-          cnpj,
-          cep,
-          endereco,
-          telefone,
-          email,
+          razaoSocial, cnpj, cep, endereco, telefone, email, password,
           latitude: latitude !== "" ? Number(latitude) : undefined,
           longitude: longitude !== "" ? Number(longitude) : undefined,
         }),
@@ -92,6 +88,7 @@ export default function NewSupplierPage() {
             { id: "cnpj", label: "CNPJ", value: cnpj, set: setCnpj, type: "text", placeholder: "00.000.000/0000-00" },
             { id: "telefone", label: "Telefone", value: telefone, set: setTelefone, type: "tel", placeholder: "(00) 00000-0000" },
             { id: "email", label: "Email", value: email, set: setEmail, type: "email", placeholder: "contato@empresa.com" },
+            { id: "password", label: "Senha", value: password, set: setPassword, type: "password", placeholder: "••••••••" },
             { id: "endereco", label: "Endereço", value: endereco, set: setEndereco, type: "text", placeholder: "Rua, número, cidade" },
           ].map((field) => (
             <div key={field.id} className="flex flex-col gap-1">

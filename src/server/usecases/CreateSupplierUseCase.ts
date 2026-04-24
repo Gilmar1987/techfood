@@ -1,7 +1,11 @@
 import { Supplier } from "@/domain/entities/Supplier";
 import { SupplierRepository } from "@/domain/repositories/SupplierRepository";
+import { UserRepository } from "@/domain/repositories/UserRepository";
+import { User, Role } from "@/domain/entities/user";
 import { GeolocalizacaoRepository } from "@/infrastructure/repositories/GeolocalizacaoRepository";
 import { CepService } from "@/infrastructure/services/CepService";
+import { TransactionManager } from "@/infrastructure/database/TransactionManager";
+import bcrypt from "bcryptjs";
 
 type CreateSupplierInput = {
   razaoSocial: string;
@@ -10,6 +14,7 @@ type CreateSupplierInput = {
   endereco: string;
   telefone: string;
   email: string;
+  password: string;
   latitude?: number;
   longitude?: number;
 };
@@ -17,24 +22,24 @@ type CreateSupplierInput = {
 export class CreateSupplierUseCase {
   constructor(
     private supplierRepository: SupplierRepository,
+    private userRepository: UserRepository,
     private geoRepo: GeolocalizacaoRepository,
-    private cepService: CepService
+    private cepService: CepService,
+    private transactionManager: TransactionManager
   ) {}
 
   async execute(input: CreateSupplierInput): Promise<Supplier> {
-    const { razaoSocial, cnpj, cep, endereco, telefone, email } = input;
+    const { razaoSocial, cnpj, cep, endereco, telefone, email, password } = input;
     const cleanCep = cep.replace(/\D/g, "");
 
     let latitude = input.latitude ?? 0;
     let longitude = input.longitude ?? 0;
 
-    // 1. Buscar no cache do banco
     const cached = await this.geoRepo.findByCep(cleanCep);
     if (cached) {
       latitude = cached.latitude;
       longitude = cached.longitude;
     } else {
-      // 2. Buscar na API CEP Aberto
       try {
         const cepData = await this.cepService.getCepData(cleanCep);
         const coords = this.cepService.getCoordinates(cepData);
@@ -43,27 +48,21 @@ export class CreateSupplierUseCase {
           longitude = coords.longitude;
           await this.geoRepo.save(cleanCep, latitude, longitude);
         }
-      } catch {
-        // 3. Fallback: usar coordenadas manuais se fornecidas
-      }
+      } catch { /* fallback para coordenadas manuais */ }
     }
 
-    const supplier = new Supplier(
-      crypto.randomUUID(),
-      razaoSocial,
-      cnpj,
-      cep,
-      endereco,
-      telefone,
-      email,
-      latitude,
-      longitude,
-      new Date(),
-      new Date(),
-      null
-    );
+    const supplierId = crypto.randomUUID();
+    const userId = crypto.randomUUID();
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.supplierRepository.create(supplier);
+    const supplier = new Supplier(supplierId, razaoSocial, cnpj, cep, endereco, telefone, email, latitude, longitude, new Date(), new Date(), null);
+    const user = new User(userId, email, hashedPassword, undefined, cnpj, Role.SUPPLIER);
+
+    await this.transactionManager.execute(async () => {
+      await this.supplierRepository.create(supplier);
+      await this.userRepository.create(user, undefined, supplierId);
+    });
+
     return supplier;
   }
 }

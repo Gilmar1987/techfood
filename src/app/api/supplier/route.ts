@@ -48,14 +48,15 @@ export async function POST(request: Request) {
     const endereco = typeof body.endereco === "string" ? body.endereco.trim().replace(/[^a-zA-Z\u00C0-\u00FF0-9\s,.-]/g, "") : "";
     const telefone = typeof body.telefone === "string" ? body.telefone.replace(/[\D]/g, "") : "";
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase().replace(/[^a-z0-9@._-]/g, "") : "";
+    const password = typeof body.password === "string" ? body.password : "";
     const latitude = body.latitude !== undefined && body.latitude !== "" ? Number(body.latitude) : undefined;
     const longitude = body.longitude !== undefined && body.longitude !== "" ? Number(body.longitude) : undefined;
 
-    if (!razaoSocial || !cnpj || !cep || !endereco || !telefone || !email) {
+    if (!razaoSocial || !cnpj || !cep || !endereco || !telefone || !email || !password) {
       return NextResponse.json({ error: "All fields are required and must be valid" }, { status: 400 });
     }
 
-    const supplier = await createSupplierUseCase.execute({ razaoSocial, cnpj, cep, endereco, telefone, email, latitude, longitude });
+    const supplier = await createSupplierUseCase.execute({ razaoSocial, cnpj, cep, endereco, telefone, email, password, latitude, longitude });
     return NextResponse.json(supplier, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Internal server error";
