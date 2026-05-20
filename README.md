@@ -1,6 +1,6 @@
 # 🍕 TechFood — Order Management System
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)]
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)]
 [![React](https://img.shields.io/badge/React-19-blue?logo=react)]
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)]
 [![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)]
@@ -12,7 +12,9 @@
 
 ## 🚀 Visão Geral
 
-**TechFood** é um sistema fullstack de gestão de pedidos para restaurantes e food services, construído com **Next.js 16**, seguindo os princípios de **Clean Architecture** e **Domain-Driven Design (DDD)**.
+**TechFood** é um sistema fullstack de gestão de pedidos para restaurantes e food services, construído com **Next.js**, seguindo os princípios de **Clean Architecture** e **Domain-Driven Design (DDD)**.
+
+Conta com autenticação via **NextAuth**, dashboards por perfil (admin, cliente, fornecedor), cálculo de frete por geolocalização e fluxo completo de pedidos com controle de estoque atômico.
 
 ---
 
@@ -22,27 +24,35 @@
 src/
  ├── app/                        # UI + API Routes (Next.js App Router)
  │   ├── api/                    # Endpoints REST
+ │   │   ├── admin/              # Rotas administrativas
+ │   │   ├── auth/               # NextAuth (login/sessão)
  │   │   ├── customer/           # GET, POST, PATCH
+ │   │   ├── frete/              # GET (cálculo de frete)
+ │   │   ├── geo/                # GET (geolocalização)
  │   │   ├── orders/             # GET, POST
  │   │   ├── products/           # GET, POST, PUT, DELETE
- │   │   ├── supplier/           # GET, POST
- │   │   └── frete/              # GET (cálculo de frete)
+ │   │   └── supplier/           # GET, POST
  │   ├── customer/               # Páginas de clientes
- │   ├── orders/                 # Páginas de pedidos
+ │   ├── dashboard/              # Dashboards por perfil (admin, cliente, fornecedor)
+ │   ├── login/                  # Página de autenticação
+ │   ├── orders/                 # Páginas de pedidos (cliente e fornecedor)
  │   ├── products/               # Páginas de produtos
  │   └── supplier/               # Páginas de fornecedores
  ├── domain/                     # Entidades + Regras de Negócio
- │   ├── entities/               # Product, Customer, Order, OrderItem, Supplier
+ │   ├── entities/               # Product, Customer, Order, OrderItem, Supplier, User
  │   ├── enums/                  # OrderStatus
  │   ├── repositories/           # Interfaces dos repositórios
- │   └── services/               # FreteService (Haversine)
+ │   └── services/               # FreteService (Haversine), IAuthService
  ├── infrastructure/             # Prisma + Repositórios + Mappers + Serviços
+ │   ├── auth/                   # credentialsProvider (NextAuth)
  │   ├── database/               # TransactionManager
  │   ├── mappers/                # Mapeamento domínio ↔ Prisma
- │   ├── repositories/           # Implementações Prisma
+ │   ├── repositories/           # Implementações Prisma + GeolocalizacaoRepository + UserRepository
  │   └── services/               # CepService (API CEP Aberto)
  └── server/                     # Use Cases + Container DI
-     └── usecases/               # CreateOrder, CreateProduct, CreateCustomer, CreateSupplier
+     └── usecases/               # CreateOrder, CreateProduct, CreateCustomer,
+                                 # CreateSupplier, AuthenticateUser,
+                                 # PayOrder, UpdateOrderStatus
 ```
 
 ---
@@ -50,26 +60,41 @@ src/
 ## 🧱 Camadas
 
 ### 🔹 Domínio
-- Entidades: `Product`, `Customer`, `Order`, `OrderItem`, `Supplier`
+- Entidades: `Product`, `Customer`, `Order`, `OrderItem`, `Supplier`, `User`
 - Validações no construtor (CPF, email, CEP, telefone, CNPJ, coordenadas)
 - Sem dependências externas
 
 ### 🔹 Aplicação (Use Cases)
-- `CreateOrderUseCase` — com transação atômica via `TransactionManager`
+- `CreateOrderUseCase` — transação atômica via `TransactionManager`
 - `CreateProductUseCase` — vinculado a um `Supplier`
 - `CreateCustomerUseCase` — com validações de unicidade
 - `CreateSupplierUseCase` — com validação de CNPJ
+- `AuthenticateUserUseCase` — autenticação via credenciais
+- `PayOrderUseCase` — processamento de pagamento do pedido
+- `UpdateOrderStatusUseCase` — atualização do status do pedido
 
 ### 🔹 Infraestrutura
 - Prisma ORM com adapter `@prisma/adapter-pg`
-- Repositórios: `PrismaProductRepository`, `PrismaCustomerRepository`, `PrismaOrderRepository`, `PrismaOrderItemRepository`, `PrismaSupplierRepository`, `GeolocalizacaoRepository`
+- Repositórios: `PrismaProductRepository`, `PrismaCustomerRepository`, `PrismaOrderRepository`, `PrismaOrderItemRepository`, `PrismaSupplierRepository`, `PrismaUserRepository`, `GeolocalizacaoRepository`
 - `CepService` — integração com API CEP Aberto (autenticada por token)
 - `FreteService` — cálculo de distância via fórmula de Haversine
+- `credentialsProvider` — integração com NextAuth
 
 ### 🔹 Interface (Next.js)
 - API Routes com sanitização de inputs e validação UUID
 - Server Components para listagens
 - Client Components para formulários e interações
+- Dashboards por perfil: admin, cliente e fornecedor
+
+---
+
+## 🔐 Autenticação
+
+- NextAuth com `CredentialsProvider`
+- Entidade `User` no domínio com repositório próprio (`PrismaUserRepository`)
+- Sessão com perfis diferenciados: `admin`, `customer`, `supplier`
+- Rotas protegidas por middleware (`src/proxy.ts`)
+- Dashboards específicos por perfil em `/dashboard/admin`, `/dashboard/customer`, `/dashboard/supplier`
 
 ---
 
@@ -97,6 +122,8 @@ src/
 7. Cliente monta carrinho (validação de estoque em tempo real)
        ↓
 8. Finaliza pedido (transação atômica: decrementa estoque + cria pedido)
+       ↓
+9. Pagamento processado via PayOrderUseCase
 ```
 
 ---
@@ -129,6 +156,7 @@ src/
 - Frete armazenado no pedido (`frete`)
 - Workflow de status: `PENDING → PREPARING → READY → OUT_FOR_DELIVERY → DELIVERED / CANCELLED`
 - Transação atômica: decremento de estoque + criação do pedido
+- Pagamento gerenciado pelo `PayOrderUseCase`
 
 ### 🧾 OrderItem
 - `quantidade > 0`
@@ -172,8 +200,9 @@ prisma.product.updateMany({
 | `Customer` | id, nome, email, cpf, cep, endereco, telefone |
 | `Order` | id, total, frete, status, customerId, supplierId |
 | `OrderItem` | id, quantidade, precoUnitario, orderId, productId |
-| `Supplier` | id, razaoSocial, cnpj, email, latitude, longitude |
+| `Supplier` | id, razaoSocial, cnpj, email, cep, latitude, longitude |
 | `Geolocalizacao` | cep (PK), latitude, longitude |
+| `User` | id, email, senha, perfil |
 
 ---
 
@@ -181,6 +210,7 @@ prisma.product.updateMany({
 
 | Método | Rota | Descrição |
 |---|---|---|
+| `POST` | `/api/auth/[...nextauth]` | Login / sessão (NextAuth) |
 | `GET` | `/api/customer?cpf=` | Busca cliente por CPF |
 | `POST` | `/api/customer` | Cadastra cliente |
 | `PATCH` | `/api/customer` | Atualiza endereço/CEP |
@@ -191,8 +221,11 @@ prisma.product.updateMany({
 | `GET` | `/api/supplier?cnpj=` | Busca fornecedor por CNPJ |
 | `GET` | `/api/supplier` | Lista fornecedores |
 | `POST` | `/api/supplier` | Cadastra fornecedor |
+| `GET` | `/api/orders` | Lista pedidos |
 | `POST` | `/api/orders` | Cria pedido |
 | `GET` | `/api/frete?cep=&supplierId=` | Calcula frete com cache de geolocalização |
+| `GET` | `/api/geo` | Consulta geolocalização por CEP |
+| `GET/POST` | `/api/admin` | Rotas administrativas |
 
 ---
 
@@ -201,6 +234,10 @@ prisma.product.updateMany({
 | Rota | Descrição |
 |---|---|
 | `/` | Landing page do TechFood |
+| `/login` | Página de autenticação |
+| `/dashboard/admin` | Dashboard administrativo |
+| `/dashboard/customer` | Dashboard do cliente |
+| `/dashboard/supplier` | Dashboard do fornecedor |
 | `/products` | Listagem de produtos com paginação e toggle |
 | `/products/new` | Cadastro de produto (identificação por CNPJ do fornecedor) |
 | `/products/manage` | CRUD completo de produtos por fornecedor |
@@ -208,6 +245,9 @@ prisma.product.updateMany({
 | `/customer/new` | Cadastro de cliente |
 | `/orders` | Listagem de pedidos com subtotal, frete e total |
 | `/orders/new` | Criação de pedido (5 steps: cliente → endereço → fornecedor → produtos → finalizar) |
+| `/orders/cliente` | Pedidos do cliente autenticado |
+| `/orders/fornecedor` | Pedidos recebidos pelo fornecedor |
+| `/orders/manage` | Gerenciamento de status dos pedidos |
 | `/supplier` | Listagem de fornecedores |
 | `/supplier/new` | Cadastro de fornecedor |
 
@@ -219,7 +259,7 @@ prisma.product.updateMany({
 - Mapper Pattern
 - Aggregate Root (`Order` controla `OrderItem`)
 - Use Case Pattern
-- Dependency Injection (container centralizado)
+- Dependency Injection (container centralizado em `server/container.ts`)
 - Factory Function (instanciação lazy do container)
 - Cache Pattern (geolocalização por CEP)
 
@@ -227,15 +267,17 @@ prisma.product.updateMany({
 
 ## 🐳 Tech Stack
 
-| Tecnologia | Versão | Uso |
-|---|---|---|
-| Next.js | 16 | Frontend + Backend (App Router) |
-| React | 19 | UI |
-| TypeScript | 5 | Linguagem |
-| Prisma | 6 | ORM |
-| PostgreSQL | — | Banco de dados |
-| @prisma/adapter-pg | 6 | Adapter de conexão |
-| API CEP Aberto | v3 | Geolocalização por CEP |
+| Tecnologia | Uso |
+|---|---|
+| Next.js 15 | Frontend + Backend (App Router) |
+| React 19 | UI |
+| TypeScript 5 | Linguagem |
+| NextAuth | Autenticação |
+| Prisma 6 | ORM |
+| PostgreSQL | Banco de dados |
+| @prisma/adapter-pg | Adapter de conexão |
+| Docker Compose | Ambiente de banco de dados |
+| API CEP Aberto v3 | Geolocalização por CEP |
 
 ---
 
@@ -248,26 +290,34 @@ git clone https://github.com/your-username/techfood.git
 cd techfood
 ```
 
-### 2. Instalar dependências
+### 2. Subir banco de dados
+
+```bash
+docker-compose up -d
+```
+
+### 3. Instalar dependências
 
 ```bash
 npm install
 ```
 
-### 3. Configurar variáveis de ambiente
+### 4. Configurar variáveis de ambiente
 
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/techfood"
 CEP_ABERTO_TOKEN=seu_token_aqui
+NEXTAUTH_SECRET=seu_secret_aqui
+NEXTAUTH_URL=http://localhost:3000
 ```
 
-### 4. Executar migrations
+### 5. Executar migrations
 
 ```bash
 npx prisma migrate dev
 ```
 
-### 5. Iniciar aplicação
+### 6. Iniciar aplicação
 
 ```bash
 npm run dev
@@ -277,12 +327,16 @@ npm run dev
 
 ## 📌 Funcionalidades Implementadas
 
+- ✅ Autenticação com NextAuth (perfis: admin, cliente, fornecedor)
+- ✅ Dashboards por perfil
 - ✅ Gestão de Produtos (CRUD completo por fornecedor)
 - ✅ Gestão de Clientes (cadastro, busca por CPF, atualização de endereço)
 - ✅ Gestão de Fornecedores (cadastro com CNPJ e coordenadas geográficas)
 - ✅ Gestão de Pedidos (fluxo completo de 5 steps)
+- ✅ Pagamento de pedidos (`PayOrderUseCase`)
+- ✅ Atualização de status do pedido (`UpdateOrderStatusUseCase`)
 - ✅ Controle de estoque em tempo real
-- ✅ Soft delete em todas as entidades
+- ✅ Soft delete em produtos
 - ✅ Cálculo de frete por distância (Haversine)
 - ✅ Cache de geolocalização por CEP no banco de dados
 - ✅ Integração com API CEP Aberto (autenticada)
@@ -297,12 +351,10 @@ npm run dev
 
 ## 🚀 Próximas Melhorias
 
-- Workflow de status do pedido (PENDING → DELIVERED)
-- Autenticação e autorização
-- Domain events
 - Testes unitários dos Use Cases
-- Dashboard administrativo
+- Domain events
 - Notificações em tempo real
+- Relatórios e métricas no dashboard admin
 
 ---
 

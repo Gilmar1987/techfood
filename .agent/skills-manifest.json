@@ -1,0 +1,50 @@
+﻿{
+  "manifestVersion": "1.0.0",
+  "agentName": "TechFood-Architecture-Agent",
+  "description": "Agente especializado em garantir os padrões de Clean Architecture, DDD e Next.js 15 no projeto TechFood.",
+  "skills": [
+    {
+      "id": "ddd-domain-order",
+      "name": "Regras de Negócio do Domínio (Order Entity)",
+      "path": "./.agent/skills/01-domain-order.md",
+      "routingKeywords": ["entidade", "domain", "order.ts", "regrade negocio", "status do pedido", "validação de cpf", "calculo total"],
+      "description": "Use esta skill quando a tarefa envolver alterar regras de negócio puras, validações de entidades como Order, Customer, Supplier ou fluxos de transição de status de pedido."
+    },
+    {
+      "id": "ddd-usecases-order",
+      "name": "Casos de Uso da Aplicação (CreateOrderUseCase)",
+      "path": "./.agent/skills/02-usecases-order.md",
+      "routingKeywords": ["usecase", "caso de uso", "application", "createorder", "transactionmanager", "dto"],
+      "description": "Use esta skill para criar ou modificar a camada de aplicação, orquestrando fluxos sem tocar diretamente em detalhes de infraestrutura ou rotas HTTP."
+    },
+    {
+      "id": "prisma-atomic-stock",
+      "name": "Persistência e Concorrência Atômica com Prisma",
+      "path": "./.agent/skills/03-prisma-infra.md",
+      "routingKeywords": ["prisma", "repository", "banco de dados", "estoque", "updateMany", "transação", "concorrência", "race condition"],
+      "description": "Use esta skill quando o usuário solicitar consultas ao banco de dados, atualização de tabelas do Prisma, ou manipulação atômica de estoque de produtos."
+    },
+    {
+      "id": "nextjs15-api-routes",
+      "name": "Criação e Validação de Rotas de API no Next.js 15",
+      "path": "./.agent/skills/04-nextjs-api.md",
+      "routingKeywords": ["api", "route", "route.ts", "POST", "GET", "PATCH", "NextResponse", "uuid", "zod", "params promise"],
+      "description": "Use esta skill SEMPRE que o usuário pedir para criar, modificar ou debugar um endpoint de API (/api/...) no Next.js 15. Ela lida com validação Zod e a assincronia obrigatória do params."
+    },
+        {
+      "id": "frete-geolocalizacao",
+      "name": "Cálculo de Frete e Cache de Geolocalização",
+      "path": "./.agent/skills/05-frete-geolocalizacao.md",
+      "routingKeywords": ["frete", "geolocalizacao", "haversine", "cep", "distancia", "km", "cep aberto", "cache"],
+      "description": "Use esta skill sempre que o usuário pedir alterações ou manutenções na lógica de cálculo de frete, distância entre cliente/fornecedor ou consultas de CEP."
+    },
+    {
+      "id": "autenticacao-perfis",
+      "name": "Autenticação e Controle de Acesso por Perfil",
+      "path": "./.agent/skills/06-autenticacao-perfis.md",
+      "routingKeywords": ["auth", "nextauth", "session", "perfil", "admin", "customer", "supplier", "proxy.ts", "middleware", "login"],
+      "description": "Use esta skill sempre que trabalhar com controle de acesso, proteção de rotas, middleware de autenticação ou separação de escopos por tipo de usuário."
+    }
+
+  ]
+}

@@ -36,7 +36,7 @@ export class Customer {
     if (!this.validateTelefone()) throw new Error("Invalid telefone");
   }
 
-  // Métodos relacionados ao cliente podem ser adicionados aqui, como validação de CPF, atualização de endereço, etc.
+  
   //Validar CPF
   validateCPF(): boolean {
     // Implementação de validação de CPF (simplificada)
