@@ -1,5 +1,10 @@
 # Skill: Desenvolvimento da Camada de Aplicação - Casos de Uso (Use Cases)
 
+## 🕵️ Rastreabilidade (Obrigatório)
+- Toda resposta gerada usando esta skill DEVE iniciar com a seguinte tag de identificação na primeira linha: 
+  `[🤖 Agente TechFood | Skill Ativada: <Nome_Da_Skill_Aqui>]`
+- O `<Nome_Da_Skill_Aqui>` DEVE ser exatamente igual ao título desta skill, sem acentos e com palavras separadas por hífen (ex: `02-usecases-order`).
+
 ## 🎯 Objetivo
 Instruir o agente na criação do caso de uso `CreateOrderUseCase` que dita a orquestração do fluxo do pedido, injetando interfaces e disparando as entidades de domínio.
 

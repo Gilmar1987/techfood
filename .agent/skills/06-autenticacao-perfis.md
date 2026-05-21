@@ -1,5 +1,10 @@
 # Skill: Autenticação e Controle de Acesso por Perfil (NextAuth)
 
+## 🕵️ Rastreabilidade (Obrigatório)
+- Toda resposta gerada usando esta skill DEVE iniciar com a seguinte tag de identificação na primeira linha: 
+  `[🤖 Agente TechFood | Skill Ativada: <Nome_Da_Skill_Aqui>]`
+- O `<Nome_Da_Skill_Aqui>` DEVE ser exatamente igual ao título desta skill, sem acentos e com palavras separadas por hífen (ex: `06-autenticacao-perfis`).
+
 ## 🎯 Objetivo
 Instruir o agente na proteção de rotas e verificação de escopo de usuários (RBAC), baseando-se na integração do NextAuth com a entidade `User` do banco.
 

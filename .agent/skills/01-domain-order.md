@@ -1,4 +1,8 @@
 # Skill: Desenvolvimento da Camada de Domínio - Entidade Order
+## 🕵️ Rastreabilidade (Obrigatório)
+- Toda resposta gerada usando esta skill DEVE iniciar com a seguinte tag de identificação na primeira linha: 
+  `[🤖 Agente TechFood | Skill Ativada: <Nome_Da_Skill_Aqui>]`
+- O `<Nome_Da_Skill_Aqui>` DEVE ser exatamente igual ao título desta skill, sem acentos e com palavras separadas por hífen (ex: `01-domain-order`).
 
 ## 🎯 Objetivo
 Orientar o agente na criação e manutenção da lógica pura de negócios, invariantes e validações das entidades de pedidos (`Order` e `OrderItem`) sem acoplamento com frameworks ou infraestrutura.

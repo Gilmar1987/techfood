@@ -1,5 +1,10 @@
 # Skill: Camada de Infraestrutura - Persistência e Concorrência Atômica
 
+## 🕵️ Rastreabilidade (Obrigatório)
+- Toda resposta gerada usando esta skill DEVE iniciar com a seguinte tag de identificação na primeira linha: 
+  `[🤖 Agente TechFood | Skill Ativada: <Nome_Da_Skill_Aqui>]`
+- O `<Nome_Da_Skill_Aqui>` DEVE ser exatamente igual ao título desta skill, sem acentos e com palavras separadas por hífen (ex: `03-prisma-infra`).
+
 ## 🎯 Objetivo
 Guiar o agente na implementação real do banco de dados usando Prisma ORM, mapeando os dados do domínio para o banco PostgreSQL e mitigando problemas de concorrência concorrente.
 

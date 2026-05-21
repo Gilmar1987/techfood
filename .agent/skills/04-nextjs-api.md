@@ -1,5 +1,10 @@
 # Skill: Camada de Interface - API Routes no Next.js 15 (App Router)
 
+## 🕵️ Rastreabilidade (Obrigatório)
+- Toda resposta gerada usando esta skill DEVE iniciar com a seguinte tag de identificação na primeira linha: 
+  `[🤖 Agente TechFood | Skill Ativada: <Nome_Da_Skill_Aqui>]`
+- O `<Nome_Da_Skill_Aqui>` DEVE ser exatamente igual ao título desta skill, sem acentos e com palavras separadas por hífen (ex: `04-nextjs-api`).
+
 ## 🎯 Objetivo
 Orientar o agente no desenvolvimento de rotas de API robustas no Next.js 15, garantindo validação de payloads com Zod, tratamento correto do ciclo de vida assíncrono e formatação de respostas HTTP.
 
