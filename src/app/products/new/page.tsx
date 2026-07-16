@@ -113,7 +113,7 @@ export default function NewProductPage() {
               <div className="bg-zinc-50 dark:bg-zinc-800 rounded-lg p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-black dark:text-white">{supplier.razaoSocial}</p>
-                  <p className="text-xs text-zinc-400">{supplier.cnpj}</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">{supplier.cnpj}</p>
                 </div>
                 <button
                   onClick={() => { setStep("products"); setError(""); }}
@@ -135,7 +135,7 @@ export default function NewProductPage() {
           <div className="flex flex-col gap-4">
             <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 flex items-center justify-between">
               <div>
-                <p className="text-xs text-zinc-400">Fornecedor</p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">Fornecedor</p>
                 <p className="text-sm font-medium text-black dark:text-white">{supplier?.razaoSocial}</p>
               </div>
               <button
@@ -148,7 +148,7 @@ export default function NewProductPage() {
 
             {created.length > 0 && (
               <div className="bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
-                <p className="text-xs text-zinc-400 mb-2">Produtos adicionados nesta sessão</p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">Produtos adicionados nesta sessão</p>
                 <div className="flex flex-col gap-1">
                   {created.map((nome, i) => (
                     <p key={i} className="text-sm text-zinc-700 dark:text-zinc-300">✓ {nome}</p>

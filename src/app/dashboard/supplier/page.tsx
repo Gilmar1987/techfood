@@ -13,7 +13,7 @@ export default async function SupplierDashboard() {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-3xl font-bold text-black dark:text-white">
-              Tech<span className="text-orange-500">Food</span>
+              Tech<span className="text-orange-700">Food</span>
             </h1>
             <p className="text-sm text-zinc-500 mt-1">Painel do Fornecedor · {session.user.email}</p>
           </div>

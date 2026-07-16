@@ -53,7 +53,7 @@ export default async function OrdersPage() {
 
                 {order.getItems().length > 0 && (
                   <div className="mt-4 border-t border-zinc-100 dark:border-zinc-800 pt-4">
-                    <p className="text-xs text-zinc-400 mb-2">Itens</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">Itens</p>
                     <div className="flex flex-col gap-1">
                       {order.getItems().map((item) => (
                         <div key={item.id} className="flex justify-between text-sm">
@@ -84,7 +84,7 @@ export default async function OrdersPage() {
                   </div>
                 )}
 
-                <p className="text-xs text-zinc-400 mt-4">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-4">
                   {order.createdAt ? new Date(order.createdAt).toLocaleString("pt-BR") : ""}
                 </p>
               </div>

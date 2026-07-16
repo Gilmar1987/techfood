@@ -36,17 +36,17 @@ export default async function SupplierPage() {
               >
                 <div className="flex flex-col gap-1">
                   <span className="text-base font-medium text-black dark:text-white">{supplier.razaoSocial}</span>
-                  <span className="text-sm text-zinc-500 dark:text-zinc-400">{supplier.email}</span>
-                  <span className="text-xs text-zinc-400">{supplier.endereco}</span>
+                  <span className="text-sm text-zinc-600 dark:text-zinc-400">{supplier.email}</span>
+                  <span className="text-sm text-zinc-600 dark:text-zinc-400">{supplier.endereco}</span>
                 </div>
                 <div className="flex items-center gap-8 text-sm">
                   <div className="flex flex-col items-end gap-1">
-                    <span className="text-xs text-zinc-400">Telefone</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-400">Telefone</span>
                     <span className="font-medium text-black dark:text-white">{supplier.telefone}</span>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <span className="text-xs text-zinc-400">Coordenadas</span>
-                    <span className="text-xs text-zinc-500">{supplier.latitude}, {supplier.longitude}</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-400">Coordenadas</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-400">{supplier.latitude}, {supplier.longitude}</span>
                   </div>
                 </div>
               </div>

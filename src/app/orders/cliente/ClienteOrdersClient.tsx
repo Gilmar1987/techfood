@@ -115,7 +115,7 @@ export default function ClienteOrdersClient({ initialOrders, cpf, customerNome }
           <div className="flex items-center gap-3">
             <div className="text-right">
               {lastUpdated && (
-                <span className="flex items-center gap-1.5 text-xs text-zinc-400">
+                <span className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block" />
                   Atualizado às {lastUpdated.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
                 </span>
@@ -146,7 +146,7 @@ export default function ClienteOrdersClient({ initialOrders, cpf, customerNome }
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-zinc-500">Pedido #{orders.length - index}</span>
                   <div className="flex items-center gap-2">
-                    {order.paymentMethod && <span className="text-xs text-zinc-400">{PAYMENT_LABELS[order.paymentMethod]}</span>}
+                    {order.paymentMethod && <span className="text-xs text-zinc-600 dark:text-zinc-400">{PAYMENT_LABELS[order.paymentMethod]}</span>}
                     <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_COLORS[order.status] ?? ""}`}>
                       {STATUS_LABELS[order.status] ?? order.status}
                     </span>
@@ -176,7 +176,7 @@ export default function ClienteOrdersClient({ initialOrders, cpf, customerNome }
                   </div>
                 )}
 
-                <p className="text-xs text-zinc-400 mb-3">{new Date(order.createdAt).toLocaleString("pt-BR")}</p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3">{new Date(order.createdAt).toLocaleString("pt-BR")}</p>
 
                 <div className="flex flex-wrap gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
                   {order.status === "PENDING" && (
@@ -202,7 +202,7 @@ export default function ClienteOrdersClient({ initialOrders, cpf, customerNome }
                   )}
                   {["PENDING", "PAID"].includes(order.status) && (
                     <button onClick={() => handleCancel(order.id)} disabled={actionLoading === order.id}
-                      className="h-8 px-4 rounded-full border border-red-200 dark:border-red-800 text-red-500 text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-colors">
+                      className="h-8 px-4 rounded-full border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400 text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-colors">
                       Cancelar Pedido
                     </button>
                   )}

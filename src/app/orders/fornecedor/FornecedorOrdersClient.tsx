@@ -116,7 +116,7 @@ export default function FornecedorOrdersClient({ initialOrders, cnpj, supplierNo
           </div>
           <div className="flex items-center gap-3">
             {lastUpdated && (
-              <span className="flex items-center gap-1.5 text-xs text-zinc-400">
+              <span className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block" />
                 {lastUpdated.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
               </span>
@@ -148,12 +148,12 @@ export default function FornecedorOrdersClient({ initialOrders, cnpj, supplierNo
                     {STATUS_LABELS[order.status] ?? order.status}
                   </span>
                 </div>
-                <span className="text-xs text-zinc-400">{new Date(order.createdAt).toLocaleString("pt-BR")}</span>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">{new Date(order.createdAt).toLocaleString("pt-BR")}</span>
               </div>
 
               <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3">
                 Cliente: <span className="font-medium text-black dark:text-white">{order.customer?.nome ?? order.customerId}</span>
-                {order.paymentMethod && <span className="ml-2 text-xs text-zinc-400">· Pago via {PAYMENT_LABELS[order.paymentMethod]}</span>}
+                {order.paymentMethod && <span className="ml-2 text-xs text-zinc-600 dark:text-zinc-400">· Pago via {PAYMENT_LABELS[order.paymentMethod]}</span>}
               </p>
 
               {order.items.length > 0 && (
@@ -189,7 +189,7 @@ export default function FornecedorOrdersClient({ initialOrders, cnpj, supplierNo
                 )}
                 {["PAID", "PREPARING", "READY"].includes(order.status) && (
                   <button onClick={() => handleCancel(order.id)} disabled={actionLoading === order.id}
-                    className="h-8 px-4 rounded-full border border-red-200 dark:border-red-800 text-red-500 text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-colors">
+                    className="h-8 px-4 rounded-full border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400 text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-colors">
                     Cancelar
                   </button>
                 )}
@@ -199,7 +199,7 @@ export default function FornecedorOrdersClient({ initialOrders, cnpj, supplierNo
 
           {closedOrders.length > 0 && (
             <details className="mt-2">
-              <summary className="text-sm text-zinc-400 cursor-pointer hover:text-zinc-600">
+              <summary className="text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer hover:text-zinc-700">
                 {closedOrders.length} pedido{closedOrders.length !== 1 ? "s" : ""} finalizado{closedOrders.length !== 1 ? "s" : ""}
               </summary>
               <div className="flex flex-col gap-3 mt-3">
@@ -211,7 +211,7 @@ export default function FornecedorOrdersClient({ initialOrders, cnpj, supplierNo
                         {STATUS_LABELS[order.status]}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-400 mt-1">{order.customer?.nome} · {new Date(order.createdAt).toLocaleString("pt-BR")}</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">{order.customer?.nome} · {new Date(order.createdAt).toLocaleString("pt-BR")}</p>
                   </div>
                 ))}
               </div>

@@ -108,7 +108,7 @@ export default function NewSupplierPage() {
               onBlur={handleCepBlur}
               placeholder="00000-000" required className={inputClass}
             />
-            {geoStatus === "loading" && <p className="text-xs text-zinc-400">Buscando coordenadas...</p>}
+            {geoStatus === "loading" && <p className="text-sm text-zinc-600 dark:text-zinc-400">Buscando coordenadas...</p>}
             {geoStatus === "found" && <p className="text-xs text-green-600">✓ Coordenadas encontradas automaticamente</p>}
             {geoStatus === "not_found" && <p className="text-xs text-yellow-600">Coordenadas não encontradas. Preencha manualmente abaixo.</p>}
           </div>
@@ -117,7 +117,7 @@ export default function NewSupplierPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
               <label htmlFor="latitude" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Latitude {geoStatus === "found" && <span className="text-xs text-green-500">(auto)</span>}
+                Latitude {geoStatus === "found" && <span className="text-xs text-green-700">(auto)</span>}
               </label>
               <input
                 id="latitude" type="number" step="any" value={latitude}
@@ -129,7 +129,7 @@ export default function NewSupplierPage() {
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="longitude" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Longitude {geoStatus === "found" && <span className="text-xs text-green-500">(auto)</span>}
+                Longitude {geoStatus === "found" && <span className="text-xs text-green-700">(auto)</span>}
               </label>
               <input
                 id="longitude" type="number" step="any" value={longitude}
@@ -143,7 +143,7 @@ export default function NewSupplierPage() {
 
           {geoStatus === "found" && (
             <button type="button" onClick={() => setGeoStatus("manual")}
-              className="text-xs text-zinc-400 hover:text-zinc-600 text-left">
+              className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 text-left">
               Editar coordenadas manualmente
             </button>
           )}

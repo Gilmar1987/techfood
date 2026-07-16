@@ -173,12 +173,12 @@ export default function ManageOrdersPage() {
                       {STATUS_LABELS[order.status] ?? order.status}
                     </span>
                     {order.paymentMethod && (
-                      <span className="text-xs text-zinc-400">
+                      <span className="text-xs text-zinc-600 dark:text-zinc-400">
                         {PAYMENT_LABELS[order.paymentMethod]} · {order.paidAt ? new Date(order.paidAt).toLocaleString("pt-BR") : ""}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-zinc-400">{new Date(order.createdAt).toLocaleString("pt-BR")}</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">{new Date(order.createdAt).toLocaleString("pt-BR")}</span>
                 </div>
 
                 {/* Cliente */}
@@ -189,7 +189,7 @@ export default function ManageOrdersPage() {
                 {/* Itens */}
                 {order.items.length > 0 && (
                   <div className="border-t border-zinc-100 dark:border-zinc-800 pt-3 mb-3">
-                    <p className="text-xs text-zinc-400 mb-2">Itens</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">Itens</p>
                     <div className="flex flex-col gap-1">
                       {order.items.map((item) => (
                         <div key={item.id} className="flex justify-between text-sm">
@@ -264,14 +264,14 @@ export default function ManageOrdersPage() {
                     <button
                       onClick={() => handleCancel(order.id)}
                       disabled={actionLoading === order.id}
-                      className="h-8 px-4 rounded-full border border-red-200 dark:border-red-800 text-red-500 text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-colors"
+                      className="h-8 px-4 rounded-full border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400 text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-colors"
                     >
                       Cancelar Pedido
                     </button>
                   )}
 
                   {(order.status === "DELIVERED" || order.status === "CANCELLED") && (
-                    <span className="text-xs text-zinc-400 italic">Pedido finalizado</span>
+                    <span className="text-xs text-zinc-600 dark:text-zinc-400 italic">Pedido finalizado</span>
                   )}
                 </div>
               </div>

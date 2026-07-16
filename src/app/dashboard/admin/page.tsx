@@ -22,7 +22,7 @@ export default async function AdminDashboard() {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-3xl font-bold text-black dark:text-white">
-              Tech<span className="text-orange-500">Food</span>
+              Tech<span className="text-orange-700">Food</span>
             </h1>
             <p className="text-sm text-zinc-500 mt-1">Painel Administrativo · {session.user.email}</p>
           </div>
@@ -46,7 +46,7 @@ export default async function AdminDashboard() {
         {/* Criar admin */}
         <div className="mt-8 bg-zinc-100 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
           <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Criar usuário admin</h2>
-          <p className="text-xs text-zinc-400 mb-3">Use o endpoint abaixo via POST para criar novos admins.</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">Use o endpoint abaixo via POST para criar novos admins.</p>
           <code className="text-xs bg-zinc-200 dark:bg-zinc-800 px-3 py-2 rounded-lg block text-zinc-700 dark:text-zinc-300">
             POST /api/admin/seed {"{ email, password }"}
           </code>
