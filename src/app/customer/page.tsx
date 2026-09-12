@@ -1,8 +1,13 @@
 import { customerRepository } from "@/server/container";
+import { Role } from "@/domain/entities/user";
+import { requirePage } from "@/lib/pageGuards";
 import Link from "next/link";
 import CustomerList from "./CustomerList";
 
+// Expõe CPF, e-mail e telefone de todos os clientes: restrito ao admin.
 export default async function CustomerPage() {
+  await requirePage(Role.ADMIN);
+
   const customers = await customerRepository.findAll();
 
   const serialized = customers.map((c) => ({

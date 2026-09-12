@@ -34,6 +34,8 @@ export const credentialsProvider = Credentials({
                 role: user.role,
                 cpf: user.cpf,
                 cnpj: user.cnpj,
+                customerId: user.customerId,
+                supplierId: user.supplierId,
             };
         } catch (error) {
             console.error("Error during authentication:", error);

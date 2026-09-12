@@ -1,8 +1,12 @@
 import { productRepository } from "@/server/container";
+import { requirePage } from "@/lib/pageGuards";
 import Link from "next/link";
 import ProductList from "./ProductList";
 
+// Vitrine: qualquer usuário autenticado vê o catálogo de todos os fornecedores.
 export default async function ProductsPage() {
+  await requirePage();
+
   const products = await productRepository.findAll();
 
   const serialized = products.map((p) => ({

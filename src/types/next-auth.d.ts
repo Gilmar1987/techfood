@@ -7,12 +7,16 @@ declare module "next-auth" {
         role?: Role;
         cpf?: string;
         cnpj?: string;
+        customerId?: string;
+        supplierId?: string;
     }
     interface Session extends DefaultSession {
         user: {
             role?: Role;
             cpf?: string;
             cnpj?: string;
+            customerId?: string;
+            supplierId?: string;
         } & DefaultSession["user"];
     }
 }
@@ -22,5 +26,7 @@ declare module "next-auth/jwt" {
         role?: Role;
         cpf?: string;
         cnpj?: string;
+        customerId?: string;
+        supplierId?: string;
     }
 }

@@ -1,22 +1,14 @@
 import { Order } from "@/domain/entities/Order";
 import { OrderStatus, PaymentMethod } from "@/domain/enums/OrderStatus";
 import { OrderItemMapper } from "@/infrastructure/mappers/OrderItem.Mappers";
+import { Prisma } from "@/generated/prisma/client";
 
-type OrderWithItems = {
-  id: string;
-  total: any;
-  frete: any;
-  status: string;
-  paymentMethod: string | null;
-  paidAt: Date | null;
-  customerId: string;
-  supplierId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date | null;
-  items?: any[];
-  customer?: { nome: string } | null;
-};
+type OrderWithItems = Prisma.OrderGetPayload<{
+  include: {
+    items: { include: { product: true } };
+    customer: { select: { nome: true } };
+  };
+}>;
 
 export class OrderMapper {
   static toPrisma(order: Order) {
@@ -43,13 +35,15 @@ export class OrderMapper {
       order.createdAt,
       order.updatedAt,
       order.deletedAt,
-      order.customer ? { id: order.customerId, nome: order.customer.nome } as any : null,
-      order.paymentMethod as PaymentMethod | undefined,
+      order.customer ? { id: order.customerId, nome: order.customer.nome } : null,
+      (order.paymentMethod as PaymentMethod | null) ?? undefined,
       order.paidAt ?? undefined
     );
-    if (order.items) {
-      order.items.forEach(item => domainOrder.addItem(OrderItemMapper.toDomain(item)));
+
+    for (const item of order.items ?? []) {
+      domainOrder.addItem(OrderItemMapper.toDomain(item));
     }
+
     return domainOrder;
   }
 }

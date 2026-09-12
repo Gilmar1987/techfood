@@ -1,36 +1,38 @@
 import { ProductRepository } from "@/domain/repositories/ProductRepository";
 import { Product } from "@/domain/entities/Product";
-
+import { BusinessRuleError } from "@/domain/errors";
 
 type CreateProductInput = {
     nome: string;
     preco: number;
     quantidade: number;
+    /** Vem sempre da sessão do fornecedor, nunca do corpo da requisição. */
     supplierId: string;
-}
+};
 
 export class CreateProductUseCase {
-    constructor(private productReposytory: ProductRepository) { }
+    constructor(private productRepository: ProductRepository) { }
 
     async execute(input: CreateProductInput) {
         const { nome, preco, quantidade, supplierId } = input;
 
         if (!nome || preco == null || quantidade == null || !supplierId) {
-            throw new Error("Nome, preço, quantidade e fornecedor são obrigatórios.");
+            throw new BusinessRuleError("Nome, preço, quantidade e fornecedor são obrigatórios.");
         }
         if (preco <= 0) {
-            throw new Error("O preço deve ser um valor positivo.");
+            throw new BusinessRuleError("O preço deve ser um valor positivo.");
         }
         if (quantidade <= 0) {
-            throw new Error("A quantidade deve ser um valor positivo.");
+            throw new BusinessRuleError("A quantidade deve ser um valor positivo.");
         }
 
-        //Validar se o nome do produto é único
-        const existingProduct = await this.productReposytory.findAll();
-        if (existingProduct.some(p => p.nome === nome)) {
-            throw new Error("O nome do produto já está em uso.");
+        // Consulta indexada em vez de carregar a tabela inteira, e escopada ao
+        // fornecedor: dois fornecedores podem vender um produto de mesmo nome.
+        const existingProduct = await this.productRepository.findByNomeAndSupplier(nome, supplierId);
+        if (existingProduct) {
+            throw new BusinessRuleError("O nome do produto já está em uso.");
         }
-        // Criar a entidade do produto
+
         const product = new Product(
             crypto.randomUUID(),
             nome,
@@ -41,8 +43,7 @@ export class CreateProductUseCase {
             new Date(),
             null
         );
-        await this.productReposytory.create(product);
+        await this.productRepository.create(product);
         return product;
-
     }
-    }
+}

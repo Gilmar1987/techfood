@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { orderRepository, supplierRepository } from "@/server/container";
+import { serializeOrders } from "@/server/serializers/order";
 import FornecedorOrdersClient from "./FornecedorOrdersClient";
 
 export default async function FornecedorOrdersPage() {
@@ -12,23 +13,7 @@ export default async function FornecedorOrdersPage() {
 
   const orders = await orderRepository.findAllBySupplierId(supplier.id);
 
-  const serialized = orders.map((o) => ({
-    id: o.id,
-    status: o.statusOrder,
-    paymentMethod: o.getPaymentMethod() ?? null,
-    paidAt: o.getPaidAt()?.toISOString() ?? null,
-    frete: Number(o.frete),
-    total: Number(o.valorTotal) + Number(o.frete),
-    createdAt: o.createdAt?.toISOString() ?? "",
-    customerId: o.customerId,
-    customer: o.customer ? { nome: (o.customer as any).nome } : null,
-    items: o.getItems().map((i) => ({
-      id: i.id,
-      quantidade: i.quantidade,
-      precoUnitario: Number(i.precoUnitario),
-      product: { nome: i.product.nome },
-    })),
-  }));
+  const serialized = serializeOrders(orders);
 
   return (
     <FornecedorOrdersClient

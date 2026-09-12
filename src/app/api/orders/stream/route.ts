@@ -1,79 +1,82 @@
-import { orderRepository, customerRepository, supplierRepository } from "@/server/container";
-import { auth } from "@/lib/auth";
+import { orderRepository } from "@/server/container";
+import { Order } from "@/domain/entities/Order";
+import { Role } from "@/domain/entities/user";
+import { serializeOrders } from "@/server/serializers/order";
+import { requireSession, errorResponse, isAdmin } from "@/lib/requireSession";
 
 const HEARTBEAT_INTERVAL = 25_000;
 const POLL_INTERVAL = 5_000;
 
-function serialize(orders: any[]) {
-    return orders.map((o: any) => ({
-        id: o.id,
-        status: o.statusOrder,
-        paymentMethod: o.getPaymentMethod() ?? null,
-        paidAt: o.getPaidAt()?.toISOString() ?? null,
-        frete: Number(o.frete),
-        total: Number(o.valorTotal) + Number(o.frete),
-        createdAt: o.createdAt?.toISOString() ?? "",
-        customerId: o.customerId,
-        supplierId: o.supplierId,
-        customer: o.customer ? { nome: (o.customer as any).nome } : null,
-        items: o.getItems().map((i: any) => ({
-            id: i.id,
-            quantidade: i.quantidade,
-            precoUnitario: Number(i.precoUnitario),
-            product: { nome: i.product.nome },
-        })),
-    }));
-}
+export async function GET() {
+    let user;
+    try {
+        user = await requireSession();
+    } catch (error) {
+        return errorResponse(error);
+    }
 
-export async function GET(request: Request) {
-    const session = await auth();
-    if (!session?.user) return new Response("Unauthorized", { status: 401 });
+    // O escopo vem da sessão. Os antigos parâmetros `?cpf=`/`?cnpj=` eram
+    // aceitos sem conferência e deixavam qualquer usuário logado acompanhar
+    // os pedidos de outro — por isso não são mais lidos.
+    const scope = isAdmin(user)
+        ? { kind: "all" as const }
+        : user.role === Role.SUPPLIER && user.supplierId
+            ? { kind: "supplier" as const, id: user.supplierId }
+            : user.role === Role.CUSTOMER && user.customerId
+                ? { kind: "customer" as const, id: user.customerId }
+                : { kind: "none" as const };
 
-    const { searchParams } = new URL(request.url);
-    const cpf = searchParams.get("cpf");
-    const cnpj = searchParams.get("cnpj");
+    async function loadOrders(): Promise<Order[]> {
+        switch (scope.kind) {
+            case "all": return orderRepository.findAll();
+            case "supplier": return orderRepository.findAllBySupplierId(scope.id);
+            case "customer": return orderRepository.findAllByCustomerId(scope.id);
+            default: return [];
+        }
+    }
 
     const encoder = new TextEncoder();
-    let pollTimer: ReturnType<typeof setInterval>;
-    let heartbeatTimer: ReturnType<typeof setInterval>;
+    let pollTimer: ReturnType<typeof setInterval> | undefined;
+    let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
 
     const stream = new ReadableStream({
         async start(controller) {
+            let closed = false;
+
+            const stop = () => {
+                closed = true;
+                if (pollTimer) clearInterval(pollTimer);
+                if (heartbeatTimer) clearInterval(heartbeatTimer);
+            };
+
             async function fetchAndSend() {
+                if (closed) return;
                 try {
-                    let orders: any[] = [];
-
-                    if (cpf) {
-                        const customer = await customerRepository.findByCPF(cpf);
-                        if (customer) orders = await orderRepository.findAllByCustomerId(customer.id);
-                    } else if (cnpj) {
-                        const supplier = await supplierRepository.findByCNPJ(cnpj);
-                        if (supplier) orders = await orderRepository.findAllBySupplierId(supplier.id);
-                    }
-
-                    const data = `data: ${JSON.stringify(serialize(orders))}\n\n`;
+                    const orders = await loadOrders();
+                    const data = `data: ${JSON.stringify(serializeOrders(orders))}\n\n`;
                     controller.enqueue(encoder.encode(data));
                 } catch {
-                    // conexão pode ter sido fechada
+                    // Conexão fechada ou consulta falhou: encerra os timers para
+                    // não continuar consultando o banco por um cliente ausente.
+                    stop();
                 }
             }
 
-            // Envio imediato ao conectar
             await fetchAndSend();
 
-            // Poll leve a cada 5s (só processa se há conexão ativa)
             pollTimer = setInterval(fetchAndSend, POLL_INTERVAL);
 
-            // Heartbeat para manter a conexão viva
             heartbeatTimer = setInterval(() => {
                 try {
                     controller.enqueue(encoder.encode(": heartbeat\n\n"));
-                } catch { /* conexão fechada */ }
+                } catch {
+                    stop();
+                }
             }, HEARTBEAT_INTERVAL);
         },
         cancel() {
-            clearInterval(pollTimer);
-            clearInterval(heartbeatTimer);
+            if (pollTimer) clearInterval(pollTimer);
+            if (heartbeatTimer) clearInterval(heartbeatTimer);
         },
     });
 

@@ -1,7 +1,12 @@
 import { supplierRepository } from "@/server/container";
+import { Role } from "@/domain/entities/user";
+import { requirePage } from "@/lib/pageGuards";
 import Link from "next/link";
 
+// Expõe e-mail e telefone de todos os fornecedores: restrito ao admin.
 export default async function SupplierPage() {
+  await requirePage(Role.ADMIN);
+
   const suppliers = await supplierRepository.findAll();
 
   return (

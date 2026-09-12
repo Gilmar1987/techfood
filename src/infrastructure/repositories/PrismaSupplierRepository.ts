@@ -1,7 +1,10 @@
 import { Supplier } from "@/domain/entities/Supplier";
 import { SupplierRepository } from "@/domain/repositories/SupplierRepository";
+import { TransactionContext } from "@/domain/repositories/Transaction";
 import { SupplierMapper } from "@/infrastructure/mappers/Supplier.Mappers";
 import { prisma } from "@/infrastructure/prismaClient";
+import { dbClient } from "@/infrastructure/database/TransactionManager";
+import { BusinessRuleError, NotFoundError } from "@/domain/errors";
 
 export class PrismaSupplierRepository implements SupplierRepository {
   async findById(id: string): Promise<Supplier | null> {
@@ -20,32 +23,36 @@ export class PrismaSupplierRepository implements SupplierRepository {
     return suppliers.map(SupplierMapper.toDomain);
   }
 
-  async create(supplier: Supplier): Promise<void> {
-    const existingEmail = await prisma.supplier.findFirst({ where: { email: supplier.email } });
-    if (existingEmail) throw new Error("Supplier with this email already exists");
+  async create(supplier: Supplier, tx?: TransactionContext): Promise<void> {
+    const db = dbClient(tx);
 
-    const existingCNPJ = await prisma.supplier.findUnique({ where: { cnpj: supplier.cnpj } });
-    if (existingCNPJ) throw new Error("Supplier with this CNPJ already exists");
+    const existingEmail = await db.supplier.findFirst({ where: { email: supplier.email } });
+    if (existingEmail) throw new BusinessRuleError("Já existe um fornecedor com este e-mail");
 
-    await prisma.supplier.create({ data: SupplierMapper.toPrisma(supplier) });
+    const existingCNPJ = await db.supplier.findUnique({ where: { cnpj: supplier.cnpj } });
+    if (existingCNPJ) throw new BusinessRuleError("Já existe um fornecedor com este CNPJ");
+
+    await db.supplier.create({ data: SupplierMapper.toPrisma(supplier) });
   }
 
   async update(supplier: Supplier): Promise<void> {
     const existing = await prisma.supplier.findFirst({
       where: { email: supplier.email, id: { not: supplier.id }, deletedAt: null },
     });
-    if (existing) throw new Error("Supplier with this email already exists");
+    if (existing) throw new BusinessRuleError("Já existe um fornecedor com este e-mail");
 
     const result = await prisma.supplier.updateMany({
       where: { id: supplier.id, deletedAt: null },
       data: SupplierMapper.toPrisma(supplier),
     });
-    if (result.count === 0) throw new Error("Supplier not found or has been deleted");
+    if (result.count === 0) throw new NotFoundError("Fornecedor não encontrado");
   }
 
   async softDelete(id: string): Promise<void> {
-    const existing = await prisma.supplier.findUnique({ where: { id } });
-    if (!existing || existing.deletedAt) throw new Error("Supplier not found");
-    await prisma.supplier.update({ where: { id }, data: { deletedAt: new Date() } });
+    const result = await prisma.supplier.updateMany({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date() },
+    });
+    if (result.count === 0) throw new NotFoundError("Fornecedor não encontrado");
   }
 }

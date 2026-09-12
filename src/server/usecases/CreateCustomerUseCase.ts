@@ -1,8 +1,8 @@
 import { Customer } from "@/domain/entities/Customer";
 import { CustomerRepository } from "@/domain/repositories/CustomerRepository";
 import { UserRepository } from "@/domain/repositories/UserRepository";
+import { TransactionManager } from "@/domain/repositories/Transaction";
 import { User, Role } from "@/domain/entities/user";
-import { TransactionManager } from "@/infrastructure/database/TransactionManager";
 import bcrypt from "bcryptjs";
 
 type CreateCustomerInput = {
@@ -32,9 +32,11 @@ export class CreateCustomerUseCase {
     const customer = new Customer(customerId, nome, email, endereco, cep, cpf, telefone, new Date(), new Date(), null);
     const user = new User(userId, email, hashedPassword, cpf, undefined, Role.CUSTOMER);
 
-    await this.transactionManager.execute(async () => {
-      await this.customerRepository.create(customer);
-      await this.userRepository.create(user, customerId);
+    // O `tx` precisa chegar aos repositórios: sem isso as duas escritas rodam
+    // fora da transação e um erro no User deixaria o Customer órfão, sem login.
+    await this.transactionManager.execute(async (tx) => {
+      await this.customerRepository.create(customer, tx);
+      await this.userRepository.create(user, customerId, undefined, tx);
     });
 
     return customer;

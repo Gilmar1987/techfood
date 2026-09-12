@@ -1,21 +1,30 @@
 import { updateOrderStatusUseCase } from "@/server/container";
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { Actor } from "@/domain/entities/user";
+import { requireSession, errorResponse, HttpError } from "@/lib/requireSession";
+import { isUuid } from "@/lib/validation";
 
 export async function PATCH(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const orderId = z.string().uuid().parse(id);
+    const user = await requireSession();
+    const actor: Actor = {
+      role: user.role,
+      customerId: user.customerId,
+      supplierId: user.supplierId,
+    };
 
-    await updateOrderStatusUseCase.cancel(orderId);
+    const { id } = await params;
+    if (!isUuid(id)) {
+      throw new HttpError(400, "id deve ser um UUID válido");
+    }
+
+    await updateOrderStatusUseCase.cancel(id, actor);
 
     return NextResponse.json({ message: "Pedido cancelado com sucesso" }, { status: 200 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Internal server error";
-    const status = message.includes("não encontrado") ? 404 : 400;
-    return NextResponse.json({ error: message }, { status });
+    return errorResponse(error);
   }
 }

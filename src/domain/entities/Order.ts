@@ -1,6 +1,11 @@
-import { Customer } from "./Customer";
 import { OrderItem } from "./OrderItem";
 import { OrderStatus, PaymentMethod, STATUS_TRANSITIONS } from "@/domain/enums/OrderStatus";
+
+/**
+ * Referência de exibição do cliente no pedido — não é o agregado `Customer`.
+ * O pedido só precisa do nome para listagens.
+ */
+export type OrderCustomerRef = { id: string; nome: string };
 
 export class Order {
   private items: OrderItem[] = [];
@@ -17,7 +22,7 @@ export class Order {
     public createdAt?: Date,
     public updatedAt?: Date,
     public deletedAt?: Date | null,
-    public customer?: Customer | null,
+    public customer?: OrderCustomerRef | null,
     paymentMethod?: PaymentMethod,
     paidAt?: Date
   ) {
@@ -27,7 +32,9 @@ export class Order {
 
   addItem(item: OrderItem) { this.items.push(item); }
 
-  getItems(): ReadonlyArray<OrderItem> { return Object.freeze(this.items); }
+  // Devolve uma cópia: `Object.freeze(this.items)` congelaria o array interno
+  // em definitivo e faria qualquer `addItem` posterior lançar TypeError.
+  getItems(): ReadonlyArray<OrderItem> { return Object.freeze([...this.items]); }
 
   get valorTotal(): number {
     return this.items.reduce((sum, item) => sum + item.subtotal, 0);
@@ -57,14 +64,17 @@ export class Order {
   }
 
   avancarStatus(): void {
+    // PENDING só transita para CANCELLED, então precisa ser tratado antes da
+    // busca genérica — caso contrário a mensagem específica nunca seria emitida.
+    if (this.status === OrderStatus.PENDING) {
+      throw new Error("Pedido deve ser pago antes de ser preparado");
+    }
+
     const transitions = STATUS_TRANSITIONS[this.status];
     const next = transitions.find((s) => s !== OrderStatus.CANCELLED);
 
     if (!next) {
       throw new Error(`Pedido com status ${this.status} não pode ser avançado`);
-    }
-    if (this.status === OrderStatus.PENDING) {
-      throw new Error("Pedido deve ser pago antes de ser preparado");
     }
 
     this.status = next;

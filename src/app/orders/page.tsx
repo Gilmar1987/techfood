@@ -1,8 +1,14 @@
 import { orderRepository } from "@/server/container";
 import { Order } from "@/domain/entities/Order";
+import { Role } from "@/domain/entities/user";
+import { requirePage } from "@/lib/pageGuards";
 import Link from "next/link";
 
+// Listagem de todos os pedidos da plataforma: visão administrativa.
+// Cliente e fornecedor têm /orders/cliente e /orders/fornecedor.
 export default async function OrdersPage() {
+  await requirePage(Role.ADMIN);
+
   const orders = await orderRepository.findAll();
 
   return (

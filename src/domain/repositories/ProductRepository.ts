@@ -1,10 +1,5 @@
 import { Product } from "../entities/Product";
-
-export interface TransactionClient {
-  product: {
-    updateMany: (args: any) => Promise<{ count: number }>;
-  };
-}
+import { TransactionContext } from "./Transaction";
 
 export interface ProductRepository {
   findById(id: string): Promise<Product | null>;
@@ -14,6 +9,7 @@ export interface ProductRepository {
   softDelete(id: string): Promise<void>;
   findByIds(ids: string[]): Promise<Product[]>;
   findBySupplierId(supplierId: string): Promise<Product[]>;
-  descrementStock(productId: string, quantidade: number, tx?: TransactionClient): Promise<void>;
-  increaseStock(productId: string, quantidade: number, tx?: TransactionClient): Promise<void>;
+  findByNomeAndSupplier(nome: string, supplierId: string): Promise<Product | null>;
+  descrementStock(productId: string, quantidade: number, tx?: TransactionContext): Promise<void>;
+  increaseStock(productId: string, quantidade: number, tx?: TransactionContext): Promise<void>;
 }

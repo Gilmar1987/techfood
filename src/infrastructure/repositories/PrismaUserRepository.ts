@@ -1,9 +1,31 @@
 import { prisma } from "@/infrastructure/prismaClient";
 import { UserRepository } from "@/domain/repositories/UserRepository";
+import { TransactionContext } from "@/domain/repositories/Transaction";
 import { User, Role } from "@/domain/entities/user";
+import { dbClient } from "@/infrastructure/database/TransactionManager";
 
-function toUser(u: { id: string; email: string; password: string; role: string; customer?: { cpf: string } | null; supplier?: { cnpj: string } | null }): User {
-    return new User(u.id, u.email, u.password, u.customer?.cpf, u.supplier?.cnpj, u.role as Role);
+type UserRow = {
+    id: string;
+    email: string;
+    password: string;
+    role: string;
+    customerId: string | null;
+    supplierId: string | null;
+    customer?: { cpf: string } | null;
+    supplier?: { cnpj: string } | null;
+};
+
+function toUser(u: UserRow): User {
+    return new User(
+        u.id,
+        u.email,
+        u.password,
+        u.customer?.cpf,
+        u.supplier?.cnpj,
+        u.role as Role,
+        u.customerId ?? undefined,
+        u.supplierId ?? undefined
+    );
 }
 
 const include = { customer: { select: { cpf: true } }, supplier: { select: { cnpj: true } } };
@@ -30,8 +52,14 @@ export class PrismaUserRepository implements UserRepository {
         return null;
     }
 
-    async create(user: User, customerId?: string, supplierId?: string): Promise<void> {
-        await prisma.user.create({
+    async create(
+        user: User,
+        customerId?: string,
+        supplierId?: string,
+        tx?: TransactionContext
+    ): Promise<void> {
+        const db = dbClient(tx);
+        await db.user.create({
             data: {
                 id: user.id,
                 email: user.email,

@@ -1,10 +1,10 @@
 import { Customer } from "@/domain/entities/Customer";
 import { CustomerRepository } from "@/domain/repositories/CustomerRepository";
-
+import { TransactionContext } from "@/domain/repositories/Transaction";
 import { CustomerMapper } from "@/infrastructure/mappers/Customer.Mappers";
-
 import { prisma } from "@/infrastructure/prismaClient";
-
+import { dbClient } from "@/infrastructure/database/TransactionManager";
+import { BusinessRuleError, NotFoundError } from "@/domain/errors";
 
 export class PrismaCustomerRepository implements CustomerRepository {
 
@@ -20,50 +20,36 @@ export class PrismaCustomerRepository implements CustomerRepository {
             where: { cpf, deletedAt: null }
         });
         return customer ? CustomerMapper.toDomain(customer) : null;
-        }
+    }
 
     async findAll(): Promise<Customer[]> {
         const prismaCustomers = await prisma.customer.findMany({ where: { deletedAt: null } });
-        if (!prismaCustomers) {
-            return [];
-        }
         return prismaCustomers.map(CustomerMapper.toDomain);
     }
 
-    async create(customer: Customer): Promise<void> {
-        const existingCustomer = await prisma.customer.findFirst({
+    // Nome não é chave: dois clientes podem se chamar "João Silva".
+    // A unicidade real é e-mail e CPF, que são `@unique` no schema.
+    async create(customer: Customer, tx?: TransactionContext): Promise<void> {
+        const db = dbClient(tx);
+
+        const existingCustomer = await db.customer.findFirst({
             where: { email: customer.email }
         });
         if (existingCustomer) {
-            throw new Error("Customer with this email already exists");
+            throw new BusinessRuleError("Já existe um cliente com este e-mail");
         }
-        const existingCustomerByName = await prisma.customer.findFirst({
-            where: {
-                nome: customer.nome,
-                deletedAt: null
-            }
-        });
-        if (existingCustomerByName) {
-            throw new Error("Customer with this name already exists");
-        }
-        const existingCustomerByCPF = await prisma.customer.findFirst({
+
+        const existingCustomerByCPF = await db.customer.findFirst({
             where: { cpf: customer.cpf }
         });
         if (existingCustomerByCPF) {
-            throw new Error("Customer with this CPF already exists");
+            throw new BusinessRuleError("Já existe um cliente com este CPF");
         }
-        try {
 
-            const prismaCustomer = CustomerMapper.toPrisma(customer);
-            await prisma.customer.create({ data: prismaCustomer });
-        } catch (error) {
-            console.error("Error creating customer:", error);
-            throw new Error("Failed to create customer. Please try again.");
-        }
+        await db.customer.create({ data: CustomerMapper.toPrisma(customer) });
     }
 
     async update(customer: Customer): Promise<void> {
-        //verificar se o email do cliente é único
         const existingCustomer = await prisma.customer.findFirst({
             where: {
                 email: customer.email,
@@ -72,20 +58,9 @@ export class PrismaCustomerRepository implements CustomerRepository {
             }
         });
         if (existingCustomer) {
-            throw new Error("Customer with this email already exists");
+            throw new BusinessRuleError("Já existe um cliente com este e-mail");
         }
-        //Verificar se o nome do cliente é único
-        const existingCustomerByName = await prisma.customer.findFirst({
-            where: {
-                nome: customer.nome,
-                id: { not: customer.id },
-                deletedAt: null
-            }
-        });
-        if (existingCustomerByName) {
-            throw new Error("Customer with this name already exists");
-        }
-        //Verificar se o cpf do cliente é único
+
         const existingCustomerByCPF = await prisma.customer.findFirst({
             where: {
                 cpf: customer.cpf,
@@ -94,26 +69,25 @@ export class PrismaCustomerRepository implements CustomerRepository {
             }
         });
         if (existingCustomerByCPF) {
-            throw new Error("Customer with this CPF already exists");
+            throw new BusinessRuleError("Já existe um cliente com este CPF");
         }
 
-        const prismaCustomer = CustomerMapper.toPrisma(customer);
-        await prisma.customer.updateMany({
+        const result = await prisma.customer.updateMany({
             where: { id: customer.id, deletedAt: null },
-            data: prismaCustomer
+            data: CustomerMapper.toPrisma(customer)
         });
+        if (result.count === 0) {
+            throw new NotFoundError("Cliente não encontrado");
+        }
     }
 
     async softDelete(id: string): Promise<void> {
-        const existingCustomer = await prisma.customer.findUnique({ where: { id } });
-        if (!existingCustomer || existingCustomer.deletedAt) {
-            throw new Error("Customer not found");
-        }
-        await prisma.customer.update({
-            where: { id },
+        const result = await prisma.customer.updateMany({
+            where: { id, deletedAt: null },
             data: { deletedAt: new Date() }
         });
+        if (result.count === 0) {
+            throw new NotFoundError("Cliente não encontrado");
+        }
     }
 }
-
-

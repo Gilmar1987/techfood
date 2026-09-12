@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 type CustomerData = { id: string; nome: string; email: string; cpf: string; endereco: string; cep: string; telefone: string };
-type SupplierData = { id: string; razaoSocial: string; cnpj: string };
+// O cliente não recebe mais CNPJ/e-mail/telefone do fornecedor: para escolher
+// de quem comprar bastam nome e endereço.
+type SupplierData = { id: string; razaoSocial: string; endereco: string };
 type ProductData = { id: string; nome: string; preco: number; quantidade: number };
 type OrderItem = { productId: string; nome: string; preco: number; quantidade: number };
 type FreteData = { distanciaKm: number | null; valor: number | null; prazoEstimadoDias: number | null; faixa: string; endereco: string; semCoordenadas?: boolean };
@@ -116,10 +118,11 @@ export default function NewOrderClient({ customer: initialCustomer }: { customer
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // `frete` não é mais enviado: o servidor recalcula a partir do CEP do
+        // cliente, para o valor não poder ser forjado pelo navegador.
         body: JSON.stringify({
           customerId: customer.id,
           supplierId: supplier.id,
-          frete: frete?.semCoordenadas ? 0 : (frete?.valor ?? 0),
           items: items.map((i) => ({ productId: i.productId, quantidade: i.quantidade })),
         }),
       });
@@ -204,7 +207,7 @@ export default function NewOrderClient({ customer: initialCustomer }: { customer
                   className="flex items-center justify-between p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-left">
                   <div>
                     <p className="text-sm font-medium text-black dark:text-white">{s.razaoSocial}</p>
-                    <p className="text-xs text-zinc-400">{s.cnpj}</p>
+                    <p className="text-xs text-zinc-400">{s.endereco}</p>
                   </div>
                   <span className="text-xs text-zinc-400">→</span>
                 </button>
